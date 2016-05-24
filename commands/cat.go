@@ -5,8 +5,6 @@ import (
 
 	"net/http"
 
-	"log"
-
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -14,20 +12,15 @@ type CatHandler struct {
 }
 
 func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
-	log.Println("1")
 	err, photo := GetCat()
-	log.Println("2")
 	if err != nil {
 		msg := NewErrorMessage(message.Chat.ID, err)
 		bot.Send(msg)
 		return nil
 	}
-	log.Println("3")
 	msg := tgbotapi.NewPhotoUpload(message.Chat.ID, photo)
-	log.Println("4")
 
 	bot.Send(msg)
-	log.Println("5")
 	return nil
 }
 
