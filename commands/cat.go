@@ -24,17 +24,16 @@ var CatHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
+func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	err, photo := GetCat()
 	if err != nil {
 		msg := NewErrorMessage(message.Chat.ID, err)
 		bot.Send(msg)
-		return nil
+		return
 	}
 	msg := tgbotapi.NewPhotoUpload(message.Chat.ID, photo)
 
 	bot.Send(msg)
-	return nil
 }
 
 func (responder CatHandler) Info() *CommandInfo {

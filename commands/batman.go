@@ -20,10 +20,9 @@ var BatmanHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
+func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Sansa Stark is Batman")
 	bot.Send(msg)
-	return nil
 }
 
 func (responder BatmanHandler) Info() *CommandInfo {

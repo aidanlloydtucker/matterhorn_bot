@@ -7,5 +7,5 @@ import (
 
 type Command interface {
 	Info() *commands.CommandInfo
-	HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error
+	HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string)
 }

@@ -24,10 +24,9 @@ var BenchHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
+func (responder BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.FormatInt(time.Now().UnixNano(), 10))
 	bot.Send(msg)
-	return nil
 }
 
 func (responder BenchHandler) Info() *CommandInfo {

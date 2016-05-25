@@ -28,7 +28,7 @@ var BitcoinHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
+func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, price := GetBitcoin()
@@ -38,7 +38,6 @@ func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgb
 		msg = tgbotapi.NewMessage(message.Chat.ID, "Bitcoin most recent price: $"+price)
 	}
 	bot.Send(msg)
-	return nil
 }
 
 func (responder BitcoinHandler) Info() *CommandInfo {

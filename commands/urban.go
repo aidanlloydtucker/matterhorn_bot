@@ -25,7 +25,7 @@ var UrbanHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
+func (responder UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, def := GetUrban(args[0])
@@ -37,7 +37,6 @@ func (responder UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbot
 		msg.ParseMode = "HTML"
 	}
 	bot.Send(msg)
-	return nil
 }
 
 func (responder UrbanHandler) Info() *CommandInfo {
