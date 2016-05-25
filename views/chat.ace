@@ -1,0 +1,5 @@
+= content head
+
+= content main
+  h1 Chat Settings for {{.ChatName}}
+

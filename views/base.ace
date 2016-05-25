@@ -1,0 +1,22 @@
+= doctype html
+html lang=en
+  head
+    meta charset=utf-8
+    meta name=viewport content="width=device-width initial-scale=1"
+    link href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css rel=stylesheet
+    link href=/public/theme/css/gsd.css rel=stylesheet
+    link href=https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css rel=stylesheet
+    title Aidan Lloyd-Tucker
+    = yield head
+  body
+    .container
+      = yield main
+      hr
+    script src=https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
+    script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js
+    script src=/public/theme/js/jquery-ui-1.10.4.custom.min.js
+    script src=/public/theme/js/gsdk-radio.js
+    script src=/public/theme/js/gsdk-bootstrapswitch.js
+    script src=/public/theme/js/gsd.js
+    script src=/public/theme/js/gsdk-checkbox.js
+    = yield foot
