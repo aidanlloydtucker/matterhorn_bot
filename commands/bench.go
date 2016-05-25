@@ -11,23 +11,25 @@ import (
 type BenchHandler struct {
 }
 
-func (responder BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+var BenchHandlerInfo = CommandInfo{
+	Command:     "bench",
+	Args:        "",
+	Permission:  3,
+	Description: "gets unix nano timestamp",
+	LongDesc:    "",
+	Usage:       "/bench",
+	Examples: []string{
+		"/bench",
+	},
+	ResType: "message",
+}
+
+func (responder BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.FormatInt(time.Now().UnixNano(), 10))
 	bot.Send(msg)
 	return nil
 }
 
 func (responder BenchHandler) Info() *CommandInfo {
-	return &CommandInfo{
-		Command:     "bench",
-		Args:        "",
-		Permission:  3,
-		Description: "gets unix nano timestamp",
-		LongDesc:    "",
-		Usage:       "/bench",
-		Examples: []string{
-			"/bench",
-		},
-		ResType: "message",
-	}
+	return &BenchHandlerInfo
 }

@@ -5,26 +5,27 @@ import (
 )
 
 type BatmanHandler struct {
-
 }
 
-func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+var BatmanHandlerInfo = CommandInfo{
+	Command:     "batman",
+	Args:        "",
+	Permission:  3,
+	Description: "says who is batman",
+	LongDesc:    "",
+	Usage:       "/batman",
+	Examples: []string{
+		"/batman",
+	},
+	ResType: "message",
+}
+
+func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Sansa Stark is Batman")
 	bot.Send(msg)
 	return nil
 }
 
 func (responder BatmanHandler) Info() *CommandInfo {
-	return &CommandInfo{
-		Command: "batman",
-		Args: "",
-		Permission: 3,
-		Description: "says who is batman",
-		LongDesc: "",
-		Usage: "/batman",
-		Examples: []string{
-			"/batman",
-		},
-		ResType: "message",
-	}
+	return &BatmanHandlerInfo
 }

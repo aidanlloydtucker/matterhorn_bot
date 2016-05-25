@@ -15,7 +15,20 @@ import (
 type BitcoinHandler struct {
 }
 
-func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+var BitcoinHandlerInfo = CommandInfo{
+	Command:     "bitcoin",
+	Args:        "",
+	Permission:  3,
+	Description: "gets unix nano timestamp",
+	LongDesc:    "",
+	Usage:       "/bitcoin",
+	Examples: []string{
+		"/bitcoin",
+	},
+	ResType: "message",
+}
+
+func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
 	var msg tgbotapi.MessageConfig
 
 	err, price := GetBitcoin()
@@ -29,18 +42,7 @@ func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgb
 }
 
 func (responder BitcoinHandler) Info() *CommandInfo {
-	return &CommandInfo{
-		Command:     "bitcoin",
-		Args:        "",
-		Permission:  3,
-		Description: "gets unix nano timestamp",
-		LongDesc:    "",
-		Usage:       "/bitcoin",
-		Examples: []string{
-			"/bitcoin",
-		},
-		ResType: "message",
-	}
+	return &BitcoinHandlerInfo
 }
 
 func GetBitcoin() (error, string) {
@@ -51,7 +53,7 @@ func GetBitcoin() (error, string) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New("Invalid Status Code: " + resp.Status), ""
 	}
 	var jsonRes map[string]interface{}

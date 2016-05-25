@@ -11,7 +11,20 @@ import (
 type CatHandler struct {
 }
 
-func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) error {
+var CatHandlerInfo = CommandInfo{
+	Command:     "cat",
+	Args:        "",
+	Permission:  3,
+	Description: "gets a cat photo",
+	LongDesc:    "",
+	Usage:       "/cat",
+	Examples: []string{
+		"/cat",
+	},
+	ResType: "message",
+}
+
+func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) error {
 	err, photo := GetCat()
 	if err != nil {
 		msg := NewErrorMessage(message.Chat.ID, err)
@@ -25,18 +38,7 @@ func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotap
 }
 
 func (responder CatHandler) Info() *CommandInfo {
-	return &CommandInfo{
-		Command:     "cat",
-		Args:        "",
-		Permission:  3,
-		Description: "gets a cat photo",
-		LongDesc:    "",
-		Usage:       "/cat",
-		Examples: []string{
-			"/cat",
-		},
-		ResType: "message",
-	}
+	return &CatHandlerInfo
 }
 
 func GetCat() (error, tgbotapi.FileReader) {
@@ -45,7 +47,7 @@ func GetCat() (error, tgbotapi.FileReader) {
 		return err, tgbotapi.FileReader{}
 	}
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New("Invalid Status Code: " + resp.Status), tgbotapi.FileReader{}
 	}
 

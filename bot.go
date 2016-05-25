@@ -30,7 +30,15 @@ func startBot(token string) {
 		if update.Message.Text != "" && update.Message.IsCommand() {
 			for _, cmd := range CommandHandlers {
 				if cmd.Info().Command == update.Message.Command() {
-					go cmd.HandleCommand(bot, update.Message)
+					var args []string
+					if update.Message.CommandArguments() != "" && cmd.Info().Args != "" {
+
+						matchArr := cmd.Info().ArgsRegex.FindAllStringSubmatch(update.Message.CommandArguments(), -1)
+						if len(matchArr) > 0 && len(matchArr[0]) > 1 {
+							args = matchArr[0][1:]
+						}
+					}
+					go cmd.HandleCommand(bot, update.Message, args)
 				}
 			}
 		}

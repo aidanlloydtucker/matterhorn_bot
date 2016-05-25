@@ -52,6 +52,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.BenchHandler{})
 	AddCommand(commands.BitcoinHandler{})
 	AddCommand(commands.CatHandler{})
+	AddCommand(commands.UrbanHandler{})
 
 	// Start bot
 
