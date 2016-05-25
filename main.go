@@ -61,6 +61,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.BashHandler{})
 	AddCommand(commands.LmgtfyHandler{})
 	AddCommand(commands.PingHandler{})
+	AddCommand(commands.RedditHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
