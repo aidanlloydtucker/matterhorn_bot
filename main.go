@@ -56,6 +56,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.ClearHandler{})
 	AddCommand(commands.EchoHandler{})
 	AddCommand(commands.HelpHandler{})
+	AddCommand(commands.FortuneHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
