@@ -63,6 +63,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.PingHandler{})
 	AddCommand(commands.RedditHandler{})
 	AddCommand(commands.LinesHandler{})
+	AddCommand(commands.SquareHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
