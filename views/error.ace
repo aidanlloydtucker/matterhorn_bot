@@ -1,0 +1,11 @@
+= content head
+  = css
+    h1 {
+    font-size: 600%;
+    font-weight: 200;
+    margin-bottom: 40px;
+    margin-top: 150px;
+    }
+= content main
+  .text-center
+    h1 Error {{.Status}}
