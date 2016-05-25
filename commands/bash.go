@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"log"
 	"math/rand"
 
 	"time"
@@ -51,7 +50,6 @@ func GetBash() (error, string) {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	qtList := doc.Find(".qt")
-	log.Println(qtList.Length())
 
 	return nil, qtList.Eq(rand.Intn(qtList.Length() - 1)).Text()
 
