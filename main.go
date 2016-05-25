@@ -65,6 +65,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.LinesHandler{})
 	AddCommand(commands.SquareHandler{})
 	AddCommand(commands.StartHandler{})
+	AddCommand(commands.XkcdHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
