@@ -64,6 +64,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.RedditHandler{})
 	AddCommand(commands.LinesHandler{})
 	AddCommand(commands.SquareHandler{})
+	AddCommand(commands.StartHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
