@@ -66,6 +66,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.SquareHandler{})
 	AddCommand(commands.StartHandler{})
 	AddCommand(commands.XkcdHandler{})
+	AddCommand(commands.BotFatherHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
