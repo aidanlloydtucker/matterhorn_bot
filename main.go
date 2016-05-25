@@ -19,7 +19,7 @@ var (
 	BuildTime string
 )
 
-var CommandHandlers []Command
+var CommandHandlers []commands.Command
 
 func main() {
 	app := cli.NewApp()
@@ -55,6 +55,10 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.UrbanHandler{})
 	AddCommand(commands.ClearHandler{})
 	AddCommand(commands.EchoHandler{})
+	AddCommand(commands.HelpHandler{})
+
+	// Help Command Setup
+	commands.CommandList = &CommandHandlers
 
 	// Start bot
 
@@ -77,7 +81,7 @@ func runApp(c *cli.Context) {
 	log.Println("Safe Exit")
 }
 
-func AddCommand(cmd Command) {
+func AddCommand(cmd commands.Command) {
 	if cmd.Info().Args != "" {
 		argReg, err := regexp.Compile(cmd.Info().Args)
 		if err != nil {

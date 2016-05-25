@@ -1,6 +1,10 @@
 package commands
 
-import "regexp"
+import (
+	"regexp"
+
+	"gopkg.in/telegram-bot-api.v4"
+)
 
 type CommandInfo struct {
 	Command     string
@@ -12,4 +16,9 @@ type CommandInfo struct {
 	Usage       string
 	Examples    []string
 	ResType     string
+}
+
+type Command interface {
+	Info() *CommandInfo
+	HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string)
 }
