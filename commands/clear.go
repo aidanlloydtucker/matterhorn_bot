@@ -9,7 +9,7 @@ import (
 type ClearHandler struct {
 }
 
-var ClearHandlerInfo = CommandInfo{
+var clearHandlerInfo = CommandInfo{
 	Command:     "clear",
 	Args:        "",
 	Permission:  3,
@@ -28,5 +28,5 @@ func (responder ClearHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbot
 }
 
 func (responder ClearHandler) Info() *CommandInfo {
-	return &ClearHandlerInfo
+	return &clearHandlerInfo
 }

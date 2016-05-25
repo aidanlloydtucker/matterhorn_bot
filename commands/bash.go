@@ -13,7 +13,7 @@ import (
 type BashHandler struct {
 }
 
-var BashHandlerInfo = CommandInfo{
+var bashHandlerInfo = CommandInfo{
 	Command:     "bash",
 	Args:        "",
 	Permission:  3,
@@ -39,7 +39,7 @@ func (responder BashHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 }
 
 func (responder BashHandler) Info() *CommandInfo {
-	return &BashHandlerInfo
+	return &bashHandlerInfo
 }
 
 func GetBash() (error, string) {

@@ -5,7 +5,7 @@ import "gopkg.in/telegram-bot-api.v4"
 type HelpHandler struct {
 }
 
-var HelpHandlerInfo = CommandInfo{
+var helpHandlerInfo = CommandInfo{
 	Command:     "help",
 	Args:        "",
 	Permission:  3,
@@ -29,7 +29,7 @@ func (responder HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 }
 
 func (responder HelpHandler) Info() *CommandInfo {
-	return &HelpHandlerInfo
+	return &helpHandlerInfo
 }
 
 var CommandList *[]Command

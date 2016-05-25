@@ -7,7 +7,7 @@ import (
 type BatmanHandler struct {
 }
 
-var BatmanHandlerInfo = CommandInfo{
+var batmanHandlerInfo = CommandInfo{
 	Command:     "batman",
 	Args:        "",
 	Permission:  3,
@@ -26,5 +26,5 @@ func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbo
 }
 
 func (responder BatmanHandler) Info() *CommandInfo {
-	return &BatmanHandlerInfo
+	return &batmanHandlerInfo
 }

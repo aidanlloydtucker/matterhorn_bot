@@ -15,7 +15,7 @@ import (
 type BitcoinHandler struct {
 }
 
-var BitcoinHandlerInfo = CommandInfo{
+var bitcoinHandlerInfo = CommandInfo{
 	Command:     "bitcoin",
 	Args:        "",
 	Permission:  3,
@@ -41,7 +41,7 @@ func (responder BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgb
 }
 
 func (responder BitcoinHandler) Info() *CommandInfo {
-	return &BitcoinHandlerInfo
+	return &bitcoinHandlerInfo
 }
 
 func GetBitcoin() (error, string) {

@@ -10,7 +10,7 @@ import (
 type FortuneHandler struct {
 }
 
-var FortuneHandlerInfo = CommandInfo{
+var fortuneHandlerInfo = CommandInfo{
 	Command:     "fortune",
 	Args:        "",
 	Permission:  3,
@@ -36,7 +36,7 @@ func (responder FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgb
 }
 
 func (responder FortuneHandler) Info() *CommandInfo {
-	return &FortuneHandlerInfo
+	return &fortuneHandlerInfo
 }
 
 func GetFortune() (error, string) {

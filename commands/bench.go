@@ -11,7 +11,7 @@ import (
 type BenchHandler struct {
 }
 
-var BenchHandlerInfo = CommandInfo{
+var benchHandlerInfo = CommandInfo{
 	Command:     "bench",
 	Args:        "",
 	Permission:  3,
@@ -30,5 +30,5 @@ func (responder BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbot
 }
 
 func (responder BenchHandler) Info() *CommandInfo {
-	return &BenchHandlerInfo
+	return &benchHandlerInfo
 }

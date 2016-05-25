@@ -7,7 +7,7 @@ import (
 type PingHandler struct {
 }
 
-var PingHandlerInfo = CommandInfo{
+var pingHandlerInfo = CommandInfo{
 	Command:     "ping",
 	Args:        "",
 	Permission:  3,
@@ -26,5 +26,5 @@ func (responder PingHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 }
 
 func (responder PingHandler) Info() *CommandInfo {
-	return &PingHandlerInfo
+	return &pingHandlerInfo
 }

@@ -9,7 +9,7 @@ import (
 type LmgtfyHandler struct {
 }
 
-var LmgtfyHandlerInfo = CommandInfo{
+var lmgtfyHandlerInfo = CommandInfo{
 	Command:     "lmgtfy",
 	Args:        "(.+)",
 	Permission:  3,
@@ -28,5 +28,5 @@ func (responder LmgtfyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbo
 }
 
 func (responder LmgtfyHandler) Info() *CommandInfo {
-	return &LmgtfyHandlerInfo
+	return &lmgtfyHandlerInfo
 }

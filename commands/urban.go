@@ -12,7 +12,7 @@ import (
 type UrbanHandler struct {
 }
 
-var UrbanHandlerInfo = CommandInfo{
+var urbanHandlerInfo = CommandInfo{
 	Command:     "urban",
 	Args:        `(.+)`,
 	Permission:  3,
@@ -40,7 +40,7 @@ func (responder UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbot
 }
 
 func (responder UrbanHandler) Info() *CommandInfo {
-	return &UrbanHandlerInfo
+	return &urbanHandlerInfo
 }
 
 type UrbanDefinition struct {

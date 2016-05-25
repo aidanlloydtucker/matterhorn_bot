@@ -7,7 +7,7 @@ import (
 type LennyHandler struct {
 }
 
-var LennyHandlerInfo = CommandInfo{
+var lennyHandlerInfo = CommandInfo{
 	Command:     "lenny",
 	Args:        "",
 	Permission:  3,
@@ -26,5 +26,5 @@ func (responder LennyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbot
 }
 
 func (responder LennyHandler) Info() *CommandInfo {
-	return &LennyHandlerInfo
+	return &lennyHandlerInfo
 }

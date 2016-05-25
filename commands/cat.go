@@ -11,7 +11,7 @@ import (
 type CatHandler struct {
 }
 
-var CatHandlerInfo = CommandInfo{
+var catHandlerInfo = CommandInfo{
 	Command:     "cat",
 	Args:        "",
 	Permission:  3,
@@ -37,7 +37,7 @@ func (responder CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotap
 }
 
 func (responder CatHandler) Info() *CommandInfo {
-	return &CatHandlerInfo
+	return &catHandlerInfo
 }
 
 func GetCat() (error, tgbotapi.FileReader) {

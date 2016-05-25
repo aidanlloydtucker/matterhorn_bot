@@ -5,7 +5,7 @@ import "gopkg.in/telegram-bot-api.v4"
 type EchoHandler struct {
 }
 
-var EchoHandlerInfo = CommandInfo{
+var echoHandlerInfo = CommandInfo{
 	Command:     "echo",
 	Args:        `(.+)`,
 	Permission:  3,
@@ -24,5 +24,5 @@ func (responder EchoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 }
 
 func (responder EchoHandler) Info() *CommandInfo {
-	return &EchoHandlerInfo
+	return &echoHandlerInfo
 }
