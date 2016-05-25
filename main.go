@@ -54,6 +54,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.CatHandler{})
 	AddCommand(commands.UrbanHandler{})
 	AddCommand(commands.ClearHandler{})
+	AddCommand(commands.EchoHandler{})
 
 	// Start bot
 
