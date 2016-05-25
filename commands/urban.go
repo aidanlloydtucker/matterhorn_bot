@@ -69,8 +69,8 @@ func GetUrban(term string) (error, UrbanDefinition) {
 	}
 
 	list := jsonRes["list"].([]interface{})
-	if len(list) < 0 {
-		return err, UrbanDefinition{Null: true}
+	if len(list) <= 0 {
+		return errors.New("No Definition Found"), UrbanDefinition{Null: true}
 	}
 	def := list[0].(map[string]interface{})
 
