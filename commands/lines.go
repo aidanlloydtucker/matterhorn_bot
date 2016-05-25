@@ -6,23 +6,23 @@ import (
 	"gopkg.in/telegram-bot-api.v4"
 )
 
-type SquareHandler struct {
+type LinesHandler struct {
 }
 
-var squareHandlerInfo = CommandInfo{
-	Command:     "square",
+var linesHandlerInfo = CommandInfo{
+	Command:     "lines",
 	Args:        `(.+)`,
 	Permission:  3,
-	Description: "squares a word",
+	Description: "make word lines",
 	LongDesc:    "",
-	Usage:       "/square [word]",
+	Usage:       "/lines [word]",
 	Examples: []string{
-		"/square hello",
+		"/lines hello",
 	},
 	ResType: "message",
 }
 
-func (responder SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (responder LinesHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	word := args[0]
 	word = strings.ToUpper(word)
 	var sendStr string
@@ -36,6 +36,6 @@ func (responder SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbo
 	bot.Send(msg)
 }
 
-func (responder SquareHandler) Info() *CommandInfo {
-	return &squareHandlerInfo
+func (responder LinesHandler) Info() *CommandInfo {
+	return &linesHandlerInfo
 }
