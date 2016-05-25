@@ -60,6 +60,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.LennyHandler{})
 	AddCommand(commands.BashHandler{})
 	AddCommand(commands.LmgtfyHandler{})
+	AddCommand(commands.PingHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
