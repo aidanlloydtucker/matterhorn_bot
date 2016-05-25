@@ -31,11 +31,14 @@ func startBot(token string) {
 			for _, cmd := range CommandHandlers {
 				if cmd.Info().Command == update.Message.Command() {
 					var args []string
-					if update.Message.CommandArguments() != "" && cmd.Info().Args != "" {
-
-						matchArr := cmd.Info().ArgsRegex.FindAllStringSubmatch(update.Message.CommandArguments(), -1)
-						if len(matchArr) > 0 && len(matchArr[0]) > 1 {
-							args = matchArr[0][1:]
+					if cmd.Info().Args != "" {
+						if cmd.Info().ArgsRegex.MatchString(update.Message.CommandArguments()) {
+							matchArr := cmd.Info().ArgsRegex.FindAllStringSubmatch(update.Message.CommandArguments(), -1)
+							if len(matchArr) > 0 && len(matchArr[0]) > 1 {
+								args = matchArr[0][1:]
+							}
+						} else {
+							continue
 						}
 					}
 					go cmd.HandleCommand(bot, update.Message, args)
