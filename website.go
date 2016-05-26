@@ -3,8 +3,6 @@ package main
 import (
 	"net/http"
 
-	"fmt"
-
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -74,5 +72,22 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "chatid:", chatId, "name:", chat.Name, "nsfw:", chat.NSFW, "type:", chat.Type)
+	tpl, err := p.Load("base", "chat", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"ChatName": chat.Name,
+		"ChatId":   chatId,
+		"Settings": map[string]interface{}{
+			"NSFW": chat.NSFW,
+		},
+	}
+
+	if err := tpl.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

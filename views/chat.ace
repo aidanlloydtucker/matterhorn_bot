@@ -1,5 +1,25 @@
 = content head
+  = css
+    .setting {
+      margin-right: 1em;
+      display: inline;
+      vertical-align: super;
+    }
 
 = content main
-  h1 Chat Settings for {{.ChatName}}
+  h1 Chat Settings for {{.Chat.Name}}
+  br
+  {{range $key, $value := .Settings}}
+    div
+      h5.setting {{$key}}:
+      {{if $value}}
+        input type=checkbox checked=true data-toggle=switch
+      {{else}}
+        input type=checkbox data-toggle=switch
+      {{end}}
+  {{end}}
+  br
+  button.btn.btn-lg.btn-success.btn-fill.btn-round.center-block Save
+
+
 
