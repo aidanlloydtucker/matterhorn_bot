@@ -72,13 +72,13 @@ func runApp(c *cli.Context) {
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
 
-	// Start Website
-
-	go startWebsite()
-
 	// Start bot
 
 	go startBot(BotToken)
+
+	// Start Website
+
+	go startWebsite()
 
 	// Safe Exit
 

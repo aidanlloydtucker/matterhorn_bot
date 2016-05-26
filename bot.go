@@ -6,11 +6,15 @@ import (
 	"gopkg.in/telegram-bot-api.v4"
 )
 
+var tgBot *tgbotapi.BotAPI
+
 func startBot(token string) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}
+
+	tgBot = bot
 
 	bot.Debug = false
 
