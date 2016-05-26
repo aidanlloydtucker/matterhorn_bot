@@ -9,3 +9,4 @@
 = content main
   .text-center
     h1 Error {{.Status}}
+    p.lead {{.Message}}
