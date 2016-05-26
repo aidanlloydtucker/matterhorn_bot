@@ -29,6 +29,8 @@ func startWebsite() {
 }
 
 func webNotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+
 	tpl, err := p.Load("base", "error", nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

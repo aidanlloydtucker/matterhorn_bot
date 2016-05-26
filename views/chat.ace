@@ -13,13 +13,15 @@
     div
       h5.setting {{$key}}:
       {{if $value}}
-        input type=checkbox checked=true data-toggle=switch
+        input setting={{$key}} type=checkbox checked=true data-toggle=switch
       {{else}}
-        input type=checkbox data-toggle=switch
+        input setting={{$key}} type=checkbox data-toggle=switch
       {{end}}
   {{end}}
   br
-  button.btn.btn-lg.btn-success.btn-fill.btn-round.center-block Save
+  button#save.btn.btn-lg.btn-success.btn-fill.btn-round.center-block Save
 
-
-
+= content foot
+  p#ChatId.hidden {{.ChatId}}
+  script src=/public/js/notification.js
+  script src=/public/js/chat.js
