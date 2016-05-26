@@ -11,6 +11,7 @@ import (
 
 	"github.com/billybobjoeaglt/sansa_bot/commands"
 	"github.com/codegangsta/cli"
+	"github.com/garyburd/redigo/redis"
 )
 
 var (
@@ -19,6 +20,8 @@ var (
 	BuildTime string
 	HttpPort  string
 )
+
+var redisConn redis.Conn
 
 var CommandHandlers []commands.Command
 
@@ -46,6 +49,7 @@ func main() {
 }
 
 func runApp(c *cli.Context) {
+	var err error
 
 	// Commands
 
@@ -71,6 +75,13 @@ func runApp(c *cli.Context) {
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
+
+	// Connect to redis
+	redisConn, err = redis.Dial("tcp", ":6379")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer redisConn.Close()
 
 	// Start bot
 
