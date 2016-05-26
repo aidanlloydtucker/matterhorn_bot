@@ -17,6 +17,7 @@ var (
 	BotToken  string
 	Version   string
 	BuildTime string
+	HttpPort  string
 )
 
 var CommandHandlers []commands.Command
@@ -71,9 +72,13 @@ func runApp(c *cli.Context) {
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
 
+	// Start Website
+
+	go startWebsite()
+
 	// Start bot
 
-	startBot(BotToken)
+	go startBot(BotToken)
 
 	// Safe Exit
 
