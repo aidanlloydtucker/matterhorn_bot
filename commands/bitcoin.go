@@ -19,7 +19,7 @@ var bitcoinHandlerInfo = CommandInfo{
 	Command:     "bitcoin",
 	Args:        "",
 	Permission:  3,
-	Description: "gets unix nano timestamp",
+	Description: "gets bitcoin prices in USD",
 	LongDesc:    "",
 	Usage:       "/bitcoin",
 	Examples: []string{
