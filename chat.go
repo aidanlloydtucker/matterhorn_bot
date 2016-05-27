@@ -11,3 +11,7 @@ func NewChatInfo() *ChatInfo {
 		NSFW: false,
 	}
 }
+
+type ChatSettings struct {
+	NSFW bool `redis:"nsfw"`
+}

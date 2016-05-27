@@ -6,9 +6,7 @@ $("#save").click(function(){
     $.ajax({
         type: "PUT",
         url: $("#ChatId").text(),
-        data: {
-            settings: JSON.stringify(settings)
-        }
+        data: JSON.stringify(settings)
     }).success(function(data) {
         notification(1, "Success", "Saved Chat Settings");
     }).error(function(data, status) {

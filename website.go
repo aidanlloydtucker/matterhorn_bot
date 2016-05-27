@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"encoding/json"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -21,6 +23,7 @@ func startWebsite() {
 	router := mux.NewRouter()
 	router.NotFoundHandler = http.HandlerFunc(webNotFoundHandler)
 	router.HandleFunc("/chat/{id}", webChatHandler).Methods("GET")
+	router.HandleFunc("/chat/{id}", webChatChangeHandler).Methods("PUT")
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./static/"))))
 
 	allHandler := handlers.CompressHandler(router)
@@ -89,6 +92,35 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tpl.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	chatId := vars["id"]
+
+	exists, err := redis.Bool(redisConn.Do("EXISTS", chatId))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		http.Error(w, "ChatId is not in database", http.StatusNotFound)
+		return
+	}
+
+	var settings ChatSettings
+
+	err = json.NewDecoder(r.Body).Decode(&settings)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = redisConn.Do("HMSET", redis.Args{}.Add(chatId).AddFlat(settings)...)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
