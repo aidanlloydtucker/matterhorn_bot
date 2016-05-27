@@ -9,6 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"bytes"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/billybobjoeaglt/sansa_bot/commands"
 	"github.com/codegangsta/cli"
 	"github.com/garyburd/redigo/redis"
@@ -19,6 +23,7 @@ var (
 	Version   string
 	BuildTime string
 	HttpPort  string
+	IP        string
 )
 
 var redisConn redis.Conn
@@ -72,6 +77,7 @@ func runApp(c *cli.Context) {
 	AddCommand(commands.StartHandler{})
 	AddCommand(commands.XkcdHandler{})
 	AddCommand(commands.BotFatherHandler{})
+	AddCommand(commands.SettingsHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
@@ -82,6 +88,23 @@ func runApp(c *cli.Context) {
 		log.Fatal(err)
 	}
 	defer redisConn.Close()
+
+	// Set HttpPort
+	if HttpPort == "" {
+		HttpPort = "8080"
+	}
+
+	// Add URL for settings command
+	if IP != "" {
+		commands.SettingsURL = IP + ":" + HttpPort + "/chat/"
+	} else {
+		ip, err := checkIP()
+		if err != nil {
+			commands.SettingsURL = "localhost:" + HttpPort + "/chat/"
+		} else {
+			commands.SettingsURL = ip + ":" + HttpPort + "/chat/"
+		}
+	}
 
 	// Start bot
 
@@ -118,4 +141,19 @@ func AddCommand(cmd commands.Command) {
 	}
 
 	CommandHandlers = append(CommandHandlers, cmd)
+}
+
+func checkIP() (string, error) {
+	rsp, err := http.Get("http://checkip.amazonaws.com")
+	if err != nil {
+		return "", err
+	}
+	defer rsp.Body.Close()
+
+	buf, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes.TrimSpace(buf)), nil
 }

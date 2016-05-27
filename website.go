@@ -16,10 +16,6 @@ var p = proxy.New(&ace.Options{BaseDir: "views"})
 
 func startWebsite() {
 
-	if HttpPort == "" {
-		HttpPort = "8080"
-	}
-
 	router := mux.NewRouter()
 	router.NotFoundHandler = http.HandlerFunc(webNotFoundHandler)
 	router.HandleFunc("/chat/{id}", webChatHandler).Methods("GET")
