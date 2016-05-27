@@ -9,7 +9,7 @@
 = content main
   h1 Chat Settings for {{.Chat.Name}}
   br
-  {{range $key, $value := .Settings}}
+  {{range $key, $value := .SettingsBool}}
     div
       h5.setting {{$key}}:
       {{if $value}}

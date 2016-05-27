@@ -82,8 +82,11 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"ChatName": chat.Name,
 		"ChatId":   chatId,
-		"Settings": map[string]interface{}{
+		"SettingsBool": map[string]interface{}{
 			"NSFW": chat.NSFW,
+		},
+		"SettingsSS": map[string]interface{}{
+			"KeyWords": chat.KeyWords,
 		},
 	}
 
