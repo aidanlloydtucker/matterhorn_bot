@@ -51,10 +51,29 @@ func startBot(token string) {
 				newChat.Type = update.Message.Chat.Type
 				redisConn.Do("HMSET", redis.Args{}.Add(update.Message.Chat.ID).AddFlat(newChat)...)
 
-			} else if update.Message.NewChatTitle != "" {
-				redisConn.Do("HSET", redis.Args{}.Add(update.Message.Chat.ID).Add("name").Add(update.Message.NewChatTitle)...)
-			}
+			} else {
+				if update.Message.Text != "" {
+					v, err := redis.Values(redisConn.Do("HGETALL", update.Message.Chat.ID))
+					if err != nil {
+						return
+					}
 
+					var chat ChatInfo
+
+					if err := redis.ScanStruct(v, &chat); err != nil {
+						return
+					}
+
+					for _, word := range chat.KeyWords {
+						if strings.Contains(update.Message.Text, word.Key) {
+							msg := tgbotapi.NewMessage(update.Message.Chat.ID, word.Message)
+							bot.Send(msg)
+						}
+					}
+				} else if update.Message.NewChatTitle != "" {
+					redisConn.Do("HSET", redis.Args{}.Add(update.Message.Chat.ID).Add("name").Add(update.Message.NewChatTitle)...)
+				}
+			}
 		}()
 
 		if update.Message.Text != "" && update.Message.IsCommand() {
