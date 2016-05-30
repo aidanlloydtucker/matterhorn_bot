@@ -53,7 +53,7 @@ func main() {
 	app.Run(os.Args)
 }
 
-func runApp(c *cli.Context) {
+func runApp(c *cli.Context) error {
 	var err error
 
 	// Commands
@@ -85,7 +85,7 @@ func runApp(c *cli.Context) {
 	// Connect to redis
 	redisConn, err = redis.Dial("tcp", ":6379")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer redisConn.Close()
 
@@ -129,6 +129,7 @@ func runApp(c *cli.Context) {
 	<-Done
 
 	log.Println("Safe Exit")
+	return nil
 }
 
 func AddCommand(cmd commands.Command) {
