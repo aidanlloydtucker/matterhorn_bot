@@ -7,6 +7,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"gopkg.in/telegram-bot-api.v4"
+	"strconv"
 )
 
 func startBot(token string) {
@@ -32,7 +33,7 @@ func startBot(token string) {
 		log.Printf("[%s] %s", update.Message.From.String(), update.Message.Text)
 
 		go func() {
-			exists, err := redis.Bool(redisConn.Do("EXISTS", update.Message.Chat.ID))
+			exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(update.Message.Chat.ID)))
 			if err != nil {
 				return
 			}
@@ -49,11 +50,11 @@ func startBot(token string) {
 					newChat.Name = update.Message.Chat.Title
 				}
 				newChat.Type = update.Message.Chat.Type
-				redisConn.Do("HMSET", redis.Args{}.Add(update.Message.Chat.ID).AddFlat(newChat)...)
+				redisConn.Do("HMSET", redis.Args{}.Add(formatRedisKey(update.Message.Chat.ID)).AddFlat(newChat)...)
 
 			} else {
 				if update.Message.Text != "" {
-					v, err := redis.Values(redisConn.Do("HGETALL", update.Message.Chat.ID))
+					v, err := redis.Values(redisConn.Do("HGETALL", formatRedisKey(update.Message.Chat.ID)))
 					if err != nil {
 						return
 					}
@@ -70,7 +71,7 @@ func startBot(token string) {
 						}
 					}
 				} else if update.Message.NewChatTitle != "" {
-					redisConn.Do("HSET", redis.Args{}.Add(update.Message.Chat.ID).Add("name").Add(update.Message.NewChatTitle)...)
+					redisConn.Do("HSET", redis.Args{}.Add(formatRedisKey(update.Message.Chat.ID)).Add("name").Add(update.Message.NewChatTitle)...)
 				}
 			}
 		}()
@@ -94,4 +95,8 @@ func startBot(token string) {
 			}
 		}
 	}
+}
+
+func formatRedisKey(key int64) string {
+	return "tg-chat-key/" + strconv.FormatInt(key, 10)
 }

@@ -50,7 +50,7 @@ func webNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 func webChatHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	chatId := vars["id"]
-	exists, err := redis.Bool(redisConn.Do("EXISTS", chatId))
+	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -60,7 +60,7 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := redis.Values(redisConn.Do("HGETALL", chatId))
+	v, err := redis.Values(redisConn.Do("HGETALL", formatRedisKey(chatId)))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -98,7 +98,7 @@ func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	chatId := vars["id"]
 
-	exists, err := redis.Bool(redisConn.Do("EXISTS", chatId))
+	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -140,7 +140,7 @@ func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = redisConn.Do("HSET", redis.Args{}.Add(chatId).Add("settings").Add(string(sJson))...)
+	_, err = redisConn.Do("HSET", redis.Args{}.Add(formatRedisKey(chatId)).Add("settings").Add(string(sJson))...)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
