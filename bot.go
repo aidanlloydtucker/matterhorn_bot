@@ -29,7 +29,7 @@ func startBot(token string) {
 			continue
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		log.Printf("[%s] %s", update.Message.From.String(), update.Message.Text)
 
 		go func() {
 			exists, err := redis.Bool(redisConn.Do("EXISTS", update.Message.Chat.ID))
@@ -38,7 +38,7 @@ func startBot(token string) {
 			}
 
 			if !exists {
-				newChat := NewChatInfo()
+				newChat := NewRedisChatInfo()
 				if update.Message.Chat.Title == "" {
 					if update.Message.Chat.UserName != "" {
 						newChat.Name = update.Message.Chat.UserName
@@ -58,9 +58,8 @@ func startBot(token string) {
 						return
 					}
 
-					var chat ChatInfo
-
-					if err := redis.ScanStruct(v, &chat); err != nil {
+					err, chat := FromRedisChatInfo(v)
+					if err != nil {
 						return
 					}
 

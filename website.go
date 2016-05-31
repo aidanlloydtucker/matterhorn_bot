@@ -66,9 +66,8 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var chat ChatInfo
-
-	if err := redis.ScanStruct(v, &chat); err != nil {
+	err, chat := FromRedisChatInfo(v)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -118,7 +117,13 @@ func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = redisConn.Do("HMSET", redis.Args{}.Add(chatId).AddFlat(settings)...)
+	sJson, err := json.Marshal(settings)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = redisConn.Do("HSET", redis.Args{}.Add(chatId).Add("settings").Add(string(sJson))...)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
