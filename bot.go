@@ -97,6 +97,8 @@ func startBot(token string) {
 	}
 }
 
+const REDIS_KEY_PREFIX string = "tg-chat-key/"
+
 func formatRedisKey(key int64) string {
-	return "tg-chat-key/" + strconv.FormatInt(key, 10)
+	return REDIS_KEY_PREFIX + strconv.FormatInt(key, 10)
 }
