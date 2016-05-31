@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/garyburd/redigo/redis"
 	"reflect"
+	"regexp"
 )
 
 type ChatInfo struct {
@@ -98,12 +99,12 @@ func FromRedisChatInfo(value []interface{}) (error, *ChatInfo) {
 // Have to do it because of redis
 type ChatSettings struct {
 	NSFW       bool
-	AlertTimes []AlertTime `type:"json"`
-	KeyWords   []KeyWord   `type:"json"`
+	AlertTimes []AlertTime
+	KeyWords   []KeyWord
 }
 
 type AlertTime struct {
-	Time    int64  `json:"time"`
+	Time    string `json:"time"`
 	Message string `json:"msg"`
 }
 
@@ -111,3 +112,5 @@ type KeyWord struct {
 	Key     string `json:"key"`
 	Message string `json:"msg"`
 }
+
+var timeRegex = regexp.MustCompile(`/^([01]\d|2[0-3]):?([0-5]\d)$/`)

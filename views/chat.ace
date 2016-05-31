@@ -18,6 +18,34 @@
         input setting={{$key}} type=checkbox data-toggle=switch
       {{end}}
   {{end}}
+  h4 Keywords:
+  table#keyword_table.table.table-bordered
+    tr
+      th Key Word
+      th Message
+    {{range .KeyWords}}
+      tr
+        td
+          input.form-control type=text value={{.Key}}
+        td
+          input.form-control type=text value={{.Message}}
+    {{end}}
+  button#add_keyword.btn.btn-sm Add Keyword
+  br
+  h4 Alert Times:
+  table#alerttimes_table.table.table-bordered
+    tr
+      th Time (Format: <u>HH:MM</u> 24 hour time in UTC)
+      th Message
+    {{range .AlertTimes}}
+      tr
+        td
+          input.form-control type=text value={{.Time}} placeholder=HH:MM
+        td
+          input.form-control type=text value={{.Message}}
+    {{end}}
+  button#add_alerttimes.btn.btn-sm Add Alert Time
+  br
   br
   button#save.btn.btn-lg.btn-success.btn-fill.btn-round.center-block Save
 

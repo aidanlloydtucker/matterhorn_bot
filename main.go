@@ -114,6 +114,9 @@ func runApp(c *cli.Context) error {
 
 	go startWebsite()
 
+	// Load reminders
+	go loadTimeReminders()
+
 	// Safe Exit
 
 	var Done = make(chan bool, 1)

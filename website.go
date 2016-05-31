@@ -84,9 +84,8 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 		"SettingsBool": map[string]interface{}{
 			"NSFW": chat.NSFW,
 		},
-		"SettingsSS": map[string]interface{}{
-			"KeyWords": chat.KeyWords,
-		},
+		"KeyWords":   chat.KeyWords,
+		"AlertTimes": chat.AlertTimes,
 	}
 
 	if err := tpl.Execute(w, data); err != nil {
@@ -116,6 +115,24 @@ func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	var newKWs []KeyWord
+
+	for _, kw := range settings.KeyWords {
+		if kw.Key != "" && kw.Message != "" {
+			newKWs = append(newKWs, kw)
+		}
+	}
+	settings.KeyWords = newKWs
+
+	var newATs []AlertTime
+
+	for _, at := range settings.AlertTimes {
+		if at.Time != "" && at.Message != "" && timeRegex.MatchString(at.Time) {
+			newATs = append(newATs, at)
+		}
+	}
+	settings.AlertTimes = newATs
 
 	sJson, err := json.Marshal(settings)
 	if err != nil {
