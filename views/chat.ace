@@ -7,7 +7,7 @@
     }
 
 = content main
-  h1 Chat Settings for {{.Chat.Name}}
+  h1 Chat Settings for {{.ChatName}}
   br
   {{range $key, $value := .SettingsBool}}
     div

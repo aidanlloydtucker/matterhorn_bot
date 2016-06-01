@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/garyburd/redigo/redis"
-	"gopkg.in/telegram-bot-api.v4"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/garyburd/redigo/redis"
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 const INTERVAL_PERIOD time.Duration = 24 * time.Hour

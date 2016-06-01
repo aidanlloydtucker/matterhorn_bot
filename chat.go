@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/garyburd/redigo/redis"
 	"reflect"
 	"regexp"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 type ChatInfo struct {

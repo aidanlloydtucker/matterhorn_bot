@@ -5,12 +5,13 @@ import (
 
 	"encoding/json"
 
+	"strconv"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/yosssi/ace"
 	"github.com/yosssi/ace-proxy"
-	"strconv"
 )
 
 var p = proxy.New(&ace.Options{BaseDir: "views"})

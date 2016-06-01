@@ -5,9 +5,10 @@ import (
 
 	"strings"
 
+	"strconv"
+
 	"github.com/garyburd/redigo/redis"
 	"gopkg.in/telegram-bot-api.v4"
-	"strconv"
 )
 
 var mainBot *tgbotapi.BotAPI
