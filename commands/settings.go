@@ -25,8 +25,6 @@ var settingsHandlerInfo = CommandInfo{
 func (responder SettingsHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	url := SettingsURL + strconv.FormatInt(message.Chat.ID, 10)
 
-	return
-
 	msg := tgbotapi.NewMessage(message.Chat.ID, "<b>To edit your settings, please go to the link below:</b>\n<a href=\""+url+"\">"+url+"</a>")
 	msg.ParseMode = "HTML"
 
