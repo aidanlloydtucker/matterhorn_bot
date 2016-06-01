@@ -10,11 +10,15 @@ import (
 	"strconv"
 )
 
+var mainBot *tgbotapi.BotAPI
+
 func startBot(token string) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}
+
+	mainBot = bot
 
 	bot.Debug = false
 

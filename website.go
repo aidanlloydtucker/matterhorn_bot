@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/yosssi/ace"
 	"github.com/yosssi/ace-proxy"
+	"strconv"
 )
 
 var p = proxy.New(&ace.Options{BaseDir: "views"})
@@ -49,7 +50,11 @@ func webNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 func webChatHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	chatId := vars["id"]
+	chatId, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -96,7 +101,11 @@ func webChatHandler(w http.ResponseWriter, r *http.Request) {
 
 func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	chatId := vars["id"]
+	chatId, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
 	if err != nil {
@@ -126,10 +135,24 @@ func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
 	settings.KeyWords = newKWs
 
 	var newATs []AlertTime
+	// struct{}{} doesnt take up any space
+	dupATs := make(map[string]struct{})
+	var setAlerts int
 
 	for _, at := range settings.AlertTimes {
 		if at.Time != "" && at.Message != "" && timeRegex.MatchString(at.Time) {
-			newATs = append(newATs, at)
+			if _, ok := dupATs[at.Time]; !ok {
+				dupATs[at.Time] = struct{}{}
+				newATs = append(newATs, at)
+				if setAlerts < MAX_ALERTS_ALLOWED {
+					hour, min, err := parseTimes(at.Time)
+					if err != nil {
+						continue
+					}
+					go startReminder(hour, min, at.Message, chatId)
+				}
+				setAlerts++
+			}
 		}
 	}
 	settings.AlertTimes = newATs

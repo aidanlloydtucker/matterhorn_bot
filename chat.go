@@ -113,4 +113,4 @@ type KeyWord struct {
 	Message string `json:"msg"`
 }
 
-var timeRegex = regexp.MustCompile(`/^([01]\d|2[0-3]):?([0-5]\d)$/`)
+var timeRegex = regexp.MustCompile(`^([01]\d|2[0-3]):?([0-5]\d)$`)
