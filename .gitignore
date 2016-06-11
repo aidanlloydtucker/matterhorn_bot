@@ -34,4 +34,4 @@ _testmain.go
 *.test
 *.prof
 
-sansa_bot
+matterhorn_bot

@@ -13,7 +13,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/billybobjoeaglt/sansa_bot/commands"
+	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 	"github.com/codegangsta/cli"
 	"github.com/garyburd/redigo/redis"
 )
@@ -33,7 +33,7 @@ var CommandHandlers []commands.Command
 func main() {
 	app := cli.NewApp()
 
-	app.Name = "AutoMod Bot"
+	app.Name = "Matterhorn Bot"
 	app.Usage = "Telegram bot"
 
 	app.Authors = []cli.Author{
