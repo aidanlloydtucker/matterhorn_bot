@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -21,7 +23,7 @@ var batmanHandlerInfo = CommandInfo{
 }
 
 func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Sansa Stark is Batman")
+	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprint(bot.Self.FirstName, bot.Self.LastName, "is Batman"))
 	bot.Send(msg)
 }
 
