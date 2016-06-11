@@ -18,6 +18,24 @@ func startReminder(hour int, minutes int, message string, chatid int64) {
 	ticker := updateTicker(hour, minutes)
 	for {
 		<-ticker.C
+		v, err := redis.Values(redisConn.Do("HGETALL", REDIS_KEY_PREFIX+chatid))
+		if err != nil {
+			return
+		}
+		err, chat := FromRedisChatInfo(v)
+		if err != nil {
+			return
+		}
+		for _, at := range chat.AlertTimes {
+			atHour, atMin, err := parseTimes(at.Time)
+			if err != nil {
+				continue
+			}
+			if atHour == hour && atMin == minutes {
+				return
+			}
+		}
+
 		msg := tgbotapi.NewMessage(chatid, message)
 		mainBot.Send(msg)
 		ticker = updateTicker(hour, minutes)
