@@ -23,7 +23,7 @@ var batmanHandlerInfo = CommandInfo{
 }
 
 func (responder BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
-	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprint(bot.Self.FirstName, bot.Self.LastName, "is Batman"))
+	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%s %s is Batman", bot.Self.FirstName, bot.Self.LastName))
 	bot.Send(msg)
 }
 
