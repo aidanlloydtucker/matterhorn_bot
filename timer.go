@@ -18,7 +18,7 @@ func startReminder(hour int, minutes int, message string, chatid int64) {
 	ticker := updateTicker(hour, minutes)
 	for {
 		<-ticker.C
-		v, err := redis.Values(redisConn.Do("HGETALL", REDIS_KEY_PREFIX+chatid))
+		v, err := redis.Values(redisConn.Do("HGETALL", REDIS_KEY_PREFIX+strconv.FormatInt(chatid, 10)))
 		if err != nil {
 			return
 		}
