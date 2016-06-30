@@ -81,7 +81,11 @@ func startBot(token string) {
 			}
 		}()
 
-		if update.Message.Text != "" && update.Message.IsCommand() {
+		if update.Message.Text != "" && (update.Message.IsCommand() || (update.Message.Text[0] == '.' && update.Message.Text[1] == '/')) {
+			if update.Message.Text[0] == '.' && update.Message.Text[1] == '/' {
+				update.Message.Text = update.Message.Text[1:]
+			}
+
 			for _, cmd := range CommandHandlers {
 				if cmd.Info().Command == update.Message.Command() {
 					var args []string
