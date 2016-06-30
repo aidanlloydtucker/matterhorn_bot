@@ -112,7 +112,7 @@ func startBot(token string) {
 	}
 }
 
-var REGEX_FOR_ALT_COMMAND *regexp.Regexp = regexp.MustCompile(`/<.+>\s\.(.+)/`)
+var REGEX_FOR_ALT_COMMAND *regexp.Regexp = regexp.MustCompilePOSIX(`/<.+>\s\.(.+)/`)
 
 const REDIS_KEY_PREFIX string = "tg-chat-key/"
 
