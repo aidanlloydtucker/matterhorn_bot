@@ -85,7 +85,6 @@ func startBot(token string) {
 
 		if update.Message.Text != "" && (update.Message.IsCommand() || REGEX_FOR_ALT_COMMAND.MatchString(update.Message.Text)) {
 			regRes := REGEX_FOR_ALT_COMMAND.FindAllStringSubmatch(update.Message.Text, -1)
-			log.Println(regRes)
 			if len(regRes) >= 1 && len(regRes[0]) >= 2 {
 				update.Message.Text = regRes[0][1]
 			}
