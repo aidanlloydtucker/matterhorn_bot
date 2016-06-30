@@ -83,11 +83,10 @@ func startBot(token string) {
 			}
 		}()
 
-		log.Println(REGEX_FOR_ALT_COMMAND.MatchString(update.Message.Text))
+		regRes := REGEX_FOR_ALT_COMMAND.FindAllStringSubmatch(update.Message.Text, -1)
+		log.Println(regRes)
 
-		if update.Message.Text != "" && (update.Message.IsCommand() || REGEX_FOR_ALT_COMMAND.MatchString(update.Message.Text)) {
-			regRes := REGEX_FOR_ALT_COMMAND.FindAllStringSubmatch(update.Message.Text, -1)
-			log.Println(regRes)
+		if update.Message.Text != "" && (update.Message.IsCommand() || (len(regRes) >= 1 && len(regRes[0]) >= 2)) {
 			if len(regRes) >= 1 && len(regRes[0]) >= 2 {
 				update.Message.Text = regRes[0][0]
 			}
@@ -112,7 +111,7 @@ func startBot(token string) {
 	}
 }
 
-var REGEX_FOR_ALT_COMMAND *regexp.Regexp = regexp.MustCompilePOSIX(`/<.+> \.(.+)/`)
+var REGEX_FOR_ALT_COMMAND *regexp.Regexp = regexp.MustCompile(`/<.+> \.(.+)/`)
 
 const REDIS_KEY_PREFIX string = "tg-chat-key/"
 
