@@ -35,3 +35,6 @@ _testmain.go
 *.prof
 
 matterhorn_bot
+resources/meme-tmpl/*
+!resources/meme-tmpl/batman.jpg
+
