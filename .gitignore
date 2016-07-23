@@ -34,6 +34,7 @@ _testmain.go
 *.test
 *.prof
 
+.DS_Store
 matterhorn_bot
 resources/meme-tmpl/*
 !resources/meme-tmpl/batman.jpg
