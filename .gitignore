@@ -42,5 +42,4 @@ resources/meme-tmpl/*
 
 commands/custom
 !commands/custom.go
-!commands/load_custom.go
 
