@@ -37,7 +37,7 @@ func main() {
 	app.Usage = "Telegram bot"
 
 	app.Authors = []cli.Author{
-		cli.Author{
+		{
 			Name: "Aidan Lloyd-Tucker",
 		},
 	}
@@ -78,6 +78,8 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.XkcdHandler{})
 	AddCommand(commands.BotFatherHandler{})
 	AddCommand(commands.SettingsHandler{})
+	AddCommand(commands.MemeHandler{})
+	AddCommand(commands.MemeListHandler{})
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers

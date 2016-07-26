@@ -6,11 +6,11 @@ import (
 	"image"
 	"image/jpeg"
 
-	"io"
-
 	"os"
 
 	"io/ioutil"
+
+	"strings"
 
 	"github.com/fogleman/gg"
 	"gopkg.in/telegram-bot-api.v4"
@@ -19,7 +19,9 @@ import (
 const FontMin = 40
 const LineSpacing = 1.5
 
-func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *io.Reader) {
+func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *bytes.Buffer) {
+	topText = strings.ToUpper(topText)
+	bottomText = strings.ToUpper(bottomText)
 	imgFile := bytes.NewReader(imgFileBytes)
 
 	img, _, err := image.Decode(imgFile)
@@ -34,7 +36,7 @@ func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *i
 	ctx := gg.NewContext(imgW, imgH)
 
 	ctx.DrawImage(img, 0, 0)
-	ctx.LoadFontFace("../resources/Impact.ttf", FontMin)
+	ctx.LoadFontFace("./resources/Impact.ttf", FontMin)
 
 	// Top Text
 
@@ -82,11 +84,12 @@ func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *i
 	var b bytes.Buffer
 	outWriter := bufio.NewWriter(&b)
 
-	jpeg.Encode(outWriter, ctx.Image(), &jpeg.Options{Quality: jpeg.DefaultQuality})
+	err = jpeg.Encode(outWriter, ctx.Image(), &jpeg.Options{Quality: jpeg.DefaultQuality})
+	if err != nil {
+		return err, nil
+	}
 
-	outReader := bufio.NewReader(&b)
-
-	return nil, outReader
+	return nil, &b
 }
 
 type MemeHandler struct {
@@ -107,17 +110,16 @@ var memeHandlerInfo = CommandInfo{
 
 func (responder MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var errMsg tgbotapi.MessageConfig
-	var msg tgbotapi.PhotoConfig
 
-	defer func(errMsg *tgbotapi.MessageConfig, bot *tgbotapi.BotAPI) {
-		if *errMsg != nil {
-			bot.Send(*errMsg)
+	defer func(bot *tgbotapi.BotAPI) {
+		if errMsg.Text != "" {
+			bot.Send(errMsg)
 		}
-	}(&errMsg, bot)
+	}(bot)
 
-	memeFn := "../resources/meme-tmpl/" + args[0]
+	memeFn := "./resources/meme-tmpl/" + args[0] + ".jpg"
 
-	if _, err := os.Stat(memeFn); err != nil {
+	if _, err := os.Stat(memeFn); os.IsNotExist(err) {
 		errMsg = NewErrorMessage(message.Chat.ID, err)
 		return
 	}
@@ -135,9 +137,19 @@ func (responder MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 		return
 
 	}
-	msg = tgbotapi.NewPhotoUpload(message.Chat.ID, *memeImg)
 
-	bot.Send(msg)
+	file := tgbotapi.FileBytes{
+		Bytes: memeImg.Bytes(),
+		Name:  "meme.jpg",
+	}
+
+	msg := tgbotapi.NewPhotoUpload(message.Chat.ID, file)
+
+	_, err = bot.Send(msg)
+	if err != nil {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
+	}
 }
 
 func (responder MemeHandler) Info() *CommandInfo {
