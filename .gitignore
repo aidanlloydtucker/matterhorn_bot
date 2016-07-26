@@ -36,6 +36,11 @@ _testmain.go
 
 .DS_Store
 matterhorn_bot
+
 resources/meme-tmpl/*
 !resources/meme-tmpl/batman.jpg
+
+commands/custom
+!commands/custom.go
+!commands/load_custom.go
 

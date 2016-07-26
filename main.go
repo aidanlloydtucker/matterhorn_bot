@@ -14,6 +14,7 @@ import (
 	"net/http"
 
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
+	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
 	"github.com/codegangsta/cli"
 	"github.com/garyburd/redigo/redis"
 )
@@ -80,6 +81,12 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.SettingsHandler{})
 	AddCommand(commands.MemeHandler{})
 	AddCommand(commands.MemeListHandler{})
+
+	// Load Custom Commands
+	custom.LoadCustom()
+	for _, cmd := range custom.CustomCommandList {
+		CommandHandlers = append(CommandHandlers, cmd)
+	}
 
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
