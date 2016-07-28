@@ -41,5 +41,6 @@ resources/meme-tmpl/*
 !resources/meme-tmpl/batman.jpg
 
 commands/custom
+commands/custom/load_custom.go
 !commands/custom.go
 

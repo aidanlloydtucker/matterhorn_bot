@@ -7,8 +7,6 @@ import (
 
 	"strconv"
 
-	"regexp"
-
 	"github.com/garyburd/redigo/redis"
 	"gopkg.in/telegram-bot-api.v4"
 )
@@ -83,12 +81,7 @@ func startBot(token string) {
 			}
 		}()
 
-		if update.Message.Text != "" && (update.Message.IsCommand() || REGEX_FOR_ALT_COMMAND.MatchString(update.Message.Text)) {
-			regRes := REGEX_FOR_ALT_COMMAND.FindAllStringSubmatch(update.Message.Text, -1)
-			if len(regRes) >= 1 && len(regRes[0]) >= 2 {
-				update.Message.Text = regRes[0][1]
-			}
-
+		if update.Message.Text != "" && update.Message.IsCommand() {
 			for _, cmd := range CommandHandlers {
 				if cmd.Info().Command == update.Message.Command() {
 					var args []string
@@ -108,8 +101,6 @@ func startBot(token string) {
 		}
 	}
 }
-
-var REGEX_FOR_ALT_COMMAND *regexp.Regexp = regexp.MustCompile(`^<.+> \.(.+)$`)
 
 const REDIS_KEY_PREFIX string = "tg-chat-key/"
 
