@@ -42,6 +42,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		if webhookErr == nil {
 			updates = bot.ListenForWebhook("/" + bot.Token)
 			go http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
+			log.Println("Running on Webhook")
 		}
 	}
 
@@ -50,6 +51,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		u.Timeout = 60
 
 		updates, err = bot.GetUpdatesChan(u)
+		log.Println("Running on Poll")
 	}
 
 	for update := range updates {
