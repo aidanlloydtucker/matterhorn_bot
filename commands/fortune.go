@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"os/exec"
 
 	"gopkg.in/telegram-bot-api.v4"
@@ -44,14 +43,6 @@ func (h FortuneHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 }
 
 func GetFortune() (error, string) {
-	cfOut, err := exec.Command("command", "-v", "fortune").Output()
-	if err != nil {
-		return err, ""
-	}
-	if len(cfOut) == 0 {
-		return errors.New("Fortune command is missing. Check README.md for install instructions."), ""
-	}
-
 	fOut, err := exec.Command("fortune", "-a", "fortunes", "riddles").Output()
 	if err != nil {
 		return err, ""
