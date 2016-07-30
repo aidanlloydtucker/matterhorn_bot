@@ -28,7 +28,7 @@ var (
 	WebhookPort   string = "8443"
 	WebhookCert   string = "./ignored/cert.pem"
 	WebhookKey    string = "./ignored/key.key"
-	EnableWebhook string = "false"
+	EnableWebhook string = "NO"
 )
 
 var redisConn redis.Conn
@@ -119,7 +119,7 @@ func runApp(c *cli.Context) error {
 
 	var webhookConf *WebhookConfig = nil
 
-	if IP != "" && EnableWebhook == "true" {
+	if IP != "" && EnableWebhook == "YES" {
 		webhookConf = &WebhookConfig{
 			IP:       IP,
 			CertPath: WebhookCert,

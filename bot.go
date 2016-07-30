@@ -39,7 +39,9 @@ func startBot(token string, webhookConf *WebhookConfig) {
 
 	if webhookConf != nil {
 		_, webhookErr = bot.SetWebhook(tgbotapi.NewWebhookWithCert("https://"+webhookConf.IP+":"+webhookConf.Port+"/"+bot.Token, webhookConf.CertPath))
-		if webhookErr == nil {
+		if webhookErr != nil {
+			log.Println("Webhook Error:", webhookErr, "Switching to poll")
+		} else {
 			updates = bot.ListenForWebhook("/" + bot.Token)
 			go http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
 			log.Println("Running on Webhook")
@@ -51,6 +53,9 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		u.Timeout = 60
 
 		updates, err = bot.GetUpdatesChan(u)
+		if err != nil {
+			log.Fatalln("Error found on getting poll updates:", err, "HALTING")
+		}
 		log.Println("Running on Poll")
 	}
 
