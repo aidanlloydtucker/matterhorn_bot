@@ -7,16 +7,25 @@ import (
 
 	"strconv"
 
+	"net/http"
+
 	"github.com/garyburd/redigo/redis"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
 var mainBot *tgbotapi.BotAPI
 
-func startBot(token string) {
+type WebhookConfig struct {
+	IP       string
+	Port     string
+	KeyPath  string
+	CertPath string
+}
+
+func startBot(token string, webhookConf *WebhookConfig) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		log.Panic(err)
+		log.Fatalln(err)
 	}
 
 	mainBot = bot
@@ -25,10 +34,23 @@ func startBot(token string) {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
+	var updates <-chan tgbotapi.Update
+	var webhookErr error
 
-	updates, err := bot.GetUpdatesChan(u)
+	if webhookConf != nil {
+		_, webhookErr = bot.SetWebhook(tgbotapi.NewWebhookWithCert("https://"+webhookConf.IP+":"+webhookConf.Port+"/"+bot.Token, webhookConf.CertPath))
+		if webhookErr == nil {
+			updates = bot.ListenForWebhook("/" + bot.Token)
+			go http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
+		}
+	}
+
+	if webhookErr != nil || webhookConf == nil {
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+
+		updates, err = bot.GetUpdatesChan(u)
+	}
 
 	for update := range updates {
 		if update.Message == nil {

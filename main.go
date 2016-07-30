@@ -20,11 +20,15 @@ import (
 )
 
 var (
-	BotToken  string
-	Version   string
-	BuildTime string
-	HttpPort  string
-	IP        string
+	BotToken      string
+	Version       string
+	BuildTime     string
+	HttpPort      string = "8080"
+	IP            string
+	WebhookPort   string = "8443"
+	WebhookCert   string = "./ignored/cert.pem"
+	WebhookKey    string = "./ignored/key.key"
+	EnableWebhook string = "false"
 )
 
 var redisConn redis.Conn
@@ -81,6 +85,7 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.SettingsHandler{})
 	AddCommand(commands.MemeHandler{})
 	AddCommand(commands.MemeListHandler{})
+	AddCommand(commands.ShameHandler{})
 
 	// Load Custom Commands
 	custom.LoadCustom()
@@ -98,26 +103,32 @@ func runApp(c *cli.Context) error {
 	}
 	defer redisConn.Close()
 
-	// Set HttpPort
-	if HttpPort == "" {
-		HttpPort = "8080"
-	}
-
 	// Add URL for settings command
 	if IP != "" {
 		commands.SettingsURL = IP + ":" + HttpPort + "/chat/"
 	} else {
-		ip, err := checkIP()
+		IP, err = checkIP()
 		if err != nil {
 			commands.SettingsURL = "localhost:" + HttpPort + "/chat/"
 		} else {
-			commands.SettingsURL = ip + ":" + HttpPort + "/chat/"
+			commands.SettingsURL = IP + ":" + HttpPort + "/chat/"
 		}
 	}
 
 	// Start bot
 
-	go startBot(BotToken)
+	var webhookConf *WebhookConfig = nil
+
+	if IP != "" && EnableWebhook == "true" {
+		webhookConf = &WebhookConfig{
+			IP:       IP,
+			CertPath: WebhookCert,
+			KeyPath:  WebhookKey,
+			Port:     WebhookPort,
+		}
+	}
+
+	go startBot(BotToken, webhookConf)
 
 	// Start Website
 

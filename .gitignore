@@ -39,6 +39,7 @@ matterhorn_bot
 
 resources/meme-tmpl/*
 !resources/meme-tmpl/batman.jpg
+ignored/
 
 commands/custom
 commands/custom/load_custom.go
