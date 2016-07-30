@@ -23,12 +23,12 @@ var (
 	BotToken      string
 	Version       string
 	BuildTime     string
-	HttpPort      string = "8080"
+	HttpPort      string
 	IP            string
-	WebhookPort   string = "8443"
-	WebhookCert   string = "./ignored/cert.pem"
-	WebhookKey    string = "./ignored/key.key"
-	EnableWebhook string = "NO"
+	WebhookPort   string
+	WebhookCert   string
+	WebhookKey    string
+	EnableWebhook string
 )
 
 var redisConn redis.Conn
@@ -58,7 +58,27 @@ func main() {
 	app.Run(os.Args)
 }
 
+func setDefaults() {
+	if HttpPort == "" {
+		HttpPort = "8080"
+	}
+
+	if WebhookPort == "" {
+		WebhookPort = "8443"
+	}
+
+	if WebhookCert == "" {
+		WebhookCert = "./ignored/cert.pem"
+	}
+
+	if WebhookKey == "" {
+		WebhookKey = "./ignored/key.key"
+	}
+}
+
 func runApp(c *cli.Context) error {
+	setDefaults()
+
 	var err error
 
 	// Commands
