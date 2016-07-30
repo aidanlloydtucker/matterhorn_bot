@@ -7,12 +7,12 @@ BUILD_TIME=$(shell date +%s)
 LDFLAGS += -X \"main.Version=$(VERSION)\"
 LDFLAGS += -X \"main.BuildTime=$(BUILD_TIME)\"
 LDFLAGS += -X \"main.BotToken=$(BOT_TOKEN)\"
-LDFLAGS += -X \"main.BotToken=$(HTTP_PORT)\"
-LDFLAGS += -X \"main.BotToken=$(IP)\"
-LDFLAGS += -X \"main.BotToken=$(WEBHOOK_PORT)\"
-LDFLAGS += -X \"main.BotToken=$(WEBHOOK_CERT)\"
-LDFLAGS += -X \"main.BotToken=$(WEBHOOK_KEY)\"
-LDFLAGS += -X \"main.BotToken=$(ENABLE_WEBHOOK)\"
+LDFLAGS += -X \"main.HttpPort=$(HTTP_PORT)\"
+LDFLAGS += -X \"main.IP=$(IP)\"
+LDFLAGS += -X \"main.WebhookPort=$(WEBHOOK_PORT)\"
+LDFLAGS += -X \"main.WebhookCert=$(WEBHOOK_CERT)\"
+LDFLAGS += -X \"main.WebhookKey=$(WEBHOOK_KEY)\"
+LDFLAGS += -X \"main.EnableWebhook=$(ENABLE_WEBHOOK)\"
 
 .PHONY: build clean
 
