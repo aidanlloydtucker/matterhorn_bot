@@ -18,7 +18,7 @@ var squareHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	word := args[0]
 	var sendStr string
 
@@ -30,6 +30,10 @@ func (responder SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbo
 	bot.Send(msg)
 }
 
-func (responder SquareHandler) Info() *CommandInfo {
+func (h SquareHandler) Info() *CommandInfo {
 	return &squareHandlerInfo
+}
+
+func (h SquareHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

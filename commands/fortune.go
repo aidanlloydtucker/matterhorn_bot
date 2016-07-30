@@ -23,7 +23,7 @@ var fortuneHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, fortune := GetFortune()
@@ -35,8 +35,12 @@ func (responder FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgb
 	bot.Send(msg)
 }
 
-func (responder FortuneHandler) Info() *CommandInfo {
+func (h FortuneHandler) Info() *CommandInfo {
 	return &fortuneHandlerInfo
+}
+
+func (h FortuneHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
 
 func GetFortune() (error, string) {

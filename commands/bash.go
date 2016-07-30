@@ -25,7 +25,7 @@ var bashHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder BashHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h BashHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, quote := GetBash()
@@ -37,8 +37,12 @@ func (responder BashHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 	bot.Send(msg)
 }
 
-func (responder BashHandler) Info() *CommandInfo {
+func (h BashHandler) Info() *CommandInfo {
 	return &bashHandlerInfo
+}
+
+func (h BashHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
 
 func GetBash() (error, string) {

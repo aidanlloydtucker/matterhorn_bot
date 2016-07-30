@@ -33,7 +33,7 @@ var xkcdHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	var xkcdId int
@@ -62,8 +62,12 @@ func (responder XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 	bot.Send(msg)
 }
 
-func (responder XkcdHandler) Info() *CommandInfo {
+func (h XkcdHandler) Info() *CommandInfo {
 	return &xkcdHandlerInfo
+}
+
+func (h XkcdHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
 
 type XkcdPost struct {

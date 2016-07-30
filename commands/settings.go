@@ -22,7 +22,7 @@ var settingsHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder SettingsHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h SettingsHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	url := SettingsURL + strconv.FormatInt(message.Chat.ID, 10)
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, "<b>To edit your settings, please go to the link below:</b>\n<a href=\""+url+"\">"+url+"</a>")
@@ -31,8 +31,12 @@ func (responder SettingsHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tg
 	bot.Send(msg)
 }
 
-func (responder SettingsHandler) Info() *CommandInfo {
+func (h SettingsHandler) Info() *CommandInfo {
 	return &settingsHandlerInfo
+}
+
+func (h SettingsHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
 
 var SettingsURL string

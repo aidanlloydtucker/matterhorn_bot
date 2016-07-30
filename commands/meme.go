@@ -108,7 +108,7 @@ var memeHandlerInfo = CommandInfo{
 	ResType: "photo",
 }
 
-func (responder MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var errMsg tgbotapi.MessageConfig
 
 	defer func(bot *tgbotapi.BotAPI) {
@@ -152,6 +152,10 @@ func (responder MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 	}
 }
 
-func (responder MemeHandler) Info() *CommandInfo {
+func (h MemeHandler) Info() *CommandInfo {
 	return &memeHandlerInfo
+}
+
+func (h MemeHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

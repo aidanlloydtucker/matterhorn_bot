@@ -18,7 +18,7 @@ var helpHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msgStr string = "<b>Commands:</b>\n"
 	for _, cmd := range *CommandList {
 		msgStr += "• " + cmd.Info().Command + " - " + cmd.Info().Description + "\n"
@@ -28,8 +28,12 @@ func (responder HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbota
 	bot.Send(msg)
 }
 
-func (responder HelpHandler) Info() *CommandInfo {
+func (h HelpHandler) Info() *CommandInfo {
 	return &helpHandlerInfo
+}
+
+func (h HelpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
 
 var CommandList *[]Command

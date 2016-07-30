@@ -18,13 +18,17 @@ var startHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder StartHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h StartHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, "<b>Hello and welcome to "+bot.Self.UserName+"!</b>\n---\nTo setup your chat, type /settings\nTo look at "+bot.Self.UserName+"'s many commands, type /help")
 	msg.ParseMode = "HTML"
 	bot.Send(msg)
 }
 
-func (responder StartHandler) Info() *CommandInfo {
+func (h StartHandler) Info() *CommandInfo {
 	return &startHandlerInfo
+}
+
+func (h StartHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

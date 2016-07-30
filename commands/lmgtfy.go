@@ -22,11 +22,15 @@ var lmgtfyHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder LmgtfyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h LmgtfyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "http://lmgtfy.com/?q="+url.QueryEscape(args[0]))
 	bot.Send(msg)
 }
 
-func (responder LmgtfyHandler) Info() *CommandInfo {
+func (h LmgtfyHandler) Info() *CommandInfo {
 	return &lmgtfyHandlerInfo
+}
+
+func (h LmgtfyHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

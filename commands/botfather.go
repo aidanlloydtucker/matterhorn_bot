@@ -18,7 +18,7 @@ var botFatherHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msgStr string
 	for _, cmd := range *CommandList {
 		msgStr += cmd.Info().Command + " - " + cmd.Info().Description + "\n"
@@ -27,6 +27,10 @@ func (responder BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *t
 	bot.Send(msg)
 }
 
-func (responder BotFatherHandler) Info() *CommandInfo {
+func (h BotFatherHandler) Info() *CommandInfo {
 	return &botFatherHandlerInfo
+}
+
+func (h BotFatherHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

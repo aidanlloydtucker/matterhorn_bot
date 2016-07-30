@@ -18,11 +18,15 @@ var echoHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder EchoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h EchoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, args[0])
 	bot.Send(msg)
 }
 
-func (responder EchoHandler) Info() *CommandInfo {
+func (h EchoHandler) Info() *CommandInfo {
 	return &echoHandlerInfo
+}
+
+func (h EchoHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

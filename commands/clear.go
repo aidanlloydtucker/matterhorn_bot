@@ -22,11 +22,15 @@ var clearHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder ClearHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h ClearHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "-_-"+strings.Repeat("\n", 80)+"-_-")
 	bot.Send(msg)
 }
 
-func (responder ClearHandler) Info() *CommandInfo {
+func (h ClearHandler) Info() *CommandInfo {
 	return &clearHandlerInfo
+}
+
+func (h ClearHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

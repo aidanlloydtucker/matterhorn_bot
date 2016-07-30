@@ -46,7 +46,7 @@ var memeListHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder MemeListHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h MemeListHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var errMsg tgbotapi.MessageConfig
 
 	defer func(bot *tgbotapi.BotAPI) {
@@ -72,6 +72,10 @@ func (responder MemeListHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tg
 	bot.Send(msg)
 }
 
-func (responder MemeListHandler) Info() *CommandInfo {
+func (h MemeListHandler) Info() *CommandInfo {
 	return &memeListHandlerInfo
+}
+
+func (h MemeListHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }

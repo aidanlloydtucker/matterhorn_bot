@@ -20,11 +20,15 @@ var lennyHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (responder LennyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h LennyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "( ͡° ͜ʖ ͡°)")
 	bot.Send(msg)
 }
 
-func (responder LennyHandler) Info() *CommandInfo {
+func (h LennyHandler) Info() *CommandInfo {
 	return &lennyHandlerInfo
+}
+
+func (h LennyHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
 }
