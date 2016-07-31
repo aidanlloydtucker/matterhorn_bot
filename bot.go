@@ -46,7 +46,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 			runningWebhook = true
 			updates = bot.ListenForWebhook("/" + bot.Token)
 			go func() {
-				err := http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
+				err := http.ListenAndServeTLS(webhookConf.IP+":"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
 				if err != nil {
 					log.Println("Webhook error:", err)
 				}
