@@ -14,6 +14,7 @@ import (
 )
 
 var mainBot *tgbotapi.BotAPI
+var runningWebhook bool
 
 type WebhookConfig struct {
 	IP       string
@@ -42,6 +43,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		if webhookErr != nil {
 			log.Println("Webhook Error:", webhookErr, "Switching to poll")
 		} else {
+			runningWebhook = true
 			updates = bot.ListenForWebhook("/" + bot.Token)
 			go http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
 			log.Println("Running on Webhook")

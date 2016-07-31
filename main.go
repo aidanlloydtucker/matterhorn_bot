@@ -167,6 +167,11 @@ func runApp(c *cli.Context) error {
 
 	go func() {
 		<-sigs
+
+		if runningWebhook {
+			mainBot.RemoveWebhook()
+		}
+
 		Done <- true
 	}()
 	<-Done
