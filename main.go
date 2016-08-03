@@ -106,6 +106,7 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.MemeHandler{})
 	AddCommand(commands.MemeListHandler{})
 	AddCommand(commands.ShameHandler{})
+	AddCommand(commands.HotHandler{})
 
 	// Load Custom Commands
 	custom.LoadCustom()
@@ -119,6 +120,7 @@ func runApp(c *cli.Context) error {
 	// Connect to redis
 	redisConn, err = redis.Dial("tcp", ":6379")
 	if err != nil {
+		log.Println("Redis is offline")
 		return err
 	}
 	defer redisConn.Close()
