@@ -47,7 +47,7 @@ func (h RedditHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 		query = "?sort=" + url.QueryEscape(sort) + "&t=" + url.QueryEscape(split[1])
 	}
 
-	err, post := GetReddit(args[0], sort, query)
+	err, post := GetReddit(bot.Self.String(), args[0], sort, query)
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
@@ -71,8 +71,14 @@ type RedditPost struct {
 	URL   string
 }
 
-func GetReddit(subreddit string, sort string, query string) (error, RedditPost) {
-	resp, err := http.Get("https://reddit.com/r/" + url.QueryEscape(subreddit) + "/" + url.QueryEscape(sort) + ".json" + query)
+func GetReddit(botName string, subreddit string, sort string, query string) (error, RedditPost) {
+	req, err := http.NewRequest(http.MethodGet, "https://www.reddit.com/r/"+url.QueryEscape(subreddit)+"/"+url.QueryEscape(sort)+".json"+query, nil)
+	if err != nil {
+		return err, RedditPost{}
+	}
+	req.Header.Add("User-agent", botName+" 0.1")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err, RedditPost{}
 	}

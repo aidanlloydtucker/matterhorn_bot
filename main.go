@@ -107,6 +107,7 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.MemeListHandler{})
 	AddCommand(commands.ShameHandler{})
 	AddCommand(commands.HotHandler{})
+	AddCommand(commands.RektHandler{})
 
 	// Load Custom Commands
 	custom.LoadCustom()

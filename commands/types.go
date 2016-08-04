@@ -3,6 +3,9 @@ package commands
 import (
 	"regexp"
 
+	"math/rand"
+	"time"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -22,4 +25,8 @@ type Command interface {
 	Info() *CommandInfo
 	HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string)
 	HandleReply(message *tgbotapi.Message) (bool, string)
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
