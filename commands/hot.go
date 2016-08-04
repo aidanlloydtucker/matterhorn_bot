@@ -17,6 +17,8 @@ import (
 type HotHandler struct {
 }
 
+var HotCache map[string]Hotness = make(map[string]Hotness)
+
 var hotHandlerInfo = CommandInfo{
 	Command:     "hot",
 	Args:        "",
@@ -33,6 +35,7 @@ var hotHandlerInfo = CommandInfo{
 func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 	var errMsg tgbotapi.MessageConfig
+	var err error
 
 	defer func(bot *tgbotapi.BotAPI) {
 		if errMsg.Text != "" {
@@ -51,56 +54,18 @@ func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messag
 		}
 	}
 
-	fileurl, err := bot.GetFileDirectURL((*(message.Photo))[len((*(message.Photo)))-1].FileID)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
+	fileID := (*(message.Photo))[len((*(message.Photo)))-1].FileID
 
-	photoResp, err := http.Get(fileurl)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
+	hot, ok := HotCache[fileID]
 
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-	fw, err := w.CreateFormFile("browseFile", fileurl)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-	if _, err = io.Copy(fw, photoResp.Body); err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-	w.Close()
-
-	req, err := http.NewRequest(http.MethodPost, "https://howhot.io/main.php", &b)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-
-	req.Header.Set("Content-Type", w.FormDataContentType())
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-
-	repBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-
-	hot := Hotness{}
-	err = json.Unmarshal(repBytes, &hot)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
+	if !ok {
+		newHot, err := getHotness(bot, fileID)
+		if err != nil {
+			errMsg = NewErrorMessage(message.Chat.ID, err)
+			return
+		}
+		HotCache[fileID] = newHot
+		hot = newHot
 	}
 
 	if !hot.Success {
@@ -156,4 +121,51 @@ func unkMessageToHotMessage(msg interface{}) HotMessage {
 		Age:       msgMap["age"].(string),
 		ImageData: msgMap["image_data"].(string),
 	}
+}
+
+func getHotness(bot *tgbotapi.BotAPI, fileID string) (Hotness, error) {
+	fileurl, err := bot.GetFileDirectURL(fileID)
+	if err != nil {
+		return Hotness{}, err
+	}
+
+	photoResp, err := http.Get(fileurl)
+	if err != nil {
+		return Hotness{}, err
+	}
+
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	fw, err := w.CreateFormFile("browseFile", fileurl)
+	if err != nil {
+		return Hotness{}, err
+	}
+	if _, err = io.Copy(fw, photoResp.Body); err != nil {
+		return Hotness{}, err
+	}
+	w.Close()
+
+	req, err := http.NewRequest(http.MethodPost, "https://howhot.io/main.php", &b)
+	if err != nil {
+		return Hotness{}, err
+	}
+
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return Hotness{}, err
+	}
+
+	repBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Hotness{}, err
+	}
+
+	hot := Hotness{}
+	err = json.Unmarshal(repBytes, &hot)
+	if err != nil {
+		return Hotness{}, err
+	}
+	return hot, nil
 }
