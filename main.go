@@ -108,6 +108,7 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.ShameHandler{})
 	AddCommand(commands.HotHandler{})
 	AddCommand(commands.RektHandler{})
+	AddCommand(commands.InfoHandler{})
 
 	// Load Custom Commands
 	custom.LoadCustom()
