@@ -11,13 +11,35 @@ import (
 	"bytes"
 	"io"
 
+	"math"
+	"time"
+
+	"strconv"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
 type HotHandler struct {
 }
 
-var HotCache map[string]Hotness = make(map[string]Hotness)
+var HotCacheMap map[string]HotCache = make(map[string]HotCache)
+
+func init() {
+	go pruneHotCache()
+}
+
+func pruneHotCache() {
+	now := time.Now()
+	for fileID, hc := range HotCacheMap {
+		calcTime := hc.Time.Add(time.Minute * 30 * time.Duration(hc.Usage-1))
+		if now.UnixNano() >= calcTime.UnixNano() {
+			delete(HotCacheMap, fileID)
+		} else {
+			hc.Usage = int(math.Floor(float64(hc.Usage) / float64(2)))
+			HotCacheMap[fileID] = hc
+		}
+	}
+}
 
 var hotHandlerInfo = CommandInfo{
 	Command:     "hot",
@@ -56,7 +78,9 @@ func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messag
 
 	fileID := (*(message.Photo))[len((*(message.Photo)))-1].FileID
 
-	hot, ok := HotCache[fileID]
+	hc, ok := HotCacheMap[fileID]
+
+	var hot Hotness
 
 	if !ok {
 		newHot, err := getHotness(bot, fileID)
@@ -64,8 +88,18 @@ func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messag
 			errMsg = NewErrorMessage(message.Chat.ID, err)
 			return
 		}
-		HotCache[fileID] = newHot
+		newHc := HotCache{
+			Hotness: &newHot,
+			Usage:   1,
+			Time:    time.Now(),
+		}
+		HotCacheMap[fileID] = newHc
 		hot = newHot
+	} else {
+		hc.Usage++
+		hc.Time = time.Now()
+		HotCacheMap[fileID] = hc
+		hot = *hc.Hotness
 	}
 
 	if !hot.Success {
@@ -75,7 +109,7 @@ func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messag
 
 	htMsg := unkMessageToHotMessage(hot.Message)
 
-	msg = tgbotapi.NewMessage(message.Chat.ID, "<b>Hotness:</b>\nSex: "+htMsg.Gender+"\nAge: "+htMsg.Age+"\nHotness: "+htMsg.Hotness)
+	msg = tgbotapi.NewMessage(message.Chat.ID, "<b>Hotness:</b>\nSex: "+htMsg.Gender+"\nAge: "+htMsg.Age+"\nHotness: "+htMsg.HotName+" ("+htMsg.Hotness+")")
 	msg.ParseMode = "HTML"
 	msg.ReplyToMessageID = replyToMsg
 
@@ -91,6 +125,12 @@ func (h HotHandler) Info() *CommandInfo {
 
 func (h HotHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return true, ""
+}
+
+type HotCache struct {
+	Hotness *Hotness
+	Usage   int
+	Time    time.Time
 }
 
 type Hotness struct {
@@ -110,16 +150,38 @@ type HotMessage struct {
 	Hotness   string `json:"hotness"`
 	Age       string `json:"age"`
 	ImageData string `json:"image_data"`
+	HotName   string
 }
 
 func unkMessageToHotMessage(msg interface{}) HotMessage {
 	msgMap := msg.(map[string]interface{})
 
+	hot := msgMap["hotness"].(string)
+	hotNum, err := strconv.ParseFloat(hot, 64)
+	hotName := hot
+	if err == nil {
+		switch {
+		case hotNum < 2.5:
+			hotName = "Hmm..."
+		case 2.5 <= hotNum && hotNum < 4:
+			hotName = "Ok"
+		case 4 <= hotNum && hotNum < 5.5:
+			hotName = "Nice"
+		case 5.5 <= hotNum && hotNum < 7:
+			hotName = "Hot"
+		case 7 <= hotNum && hotNum < 8.5:
+			hotName = "Stunning"
+		case 8.5 <= hotNum:
+			hotName = "Godlike"
+		}
+	}
+
 	return HotMessage{
 		Gender:    msgMap["gender"].(string),
-		Hotness:   msgMap["hotness"].(string),
+		Hotness:   hot,
 		Age:       msgMap["age"].(string),
 		ImageData: msgMap["image_data"].(string),
+		HotName:   hotName,
 	}
 }
 
