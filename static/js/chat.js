@@ -48,5 +48,18 @@ $("#add_keyword").click(function(){
 });
 
 $("#add_alerttimes").click(function(){
-    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="" placeholder="HH:MM"></td><td><input class="form-control" type="text" value=""></td></tr>');
+    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="" placeholder="3:04PM MST"></td><td><input class="form-control" type="text" value=""></td></tr>');
+});
+
+$("#add_alerttime_now").click(function(){
+    var nowTime = new Date()
+    var getHour = nowTime.getHours()
+    var getMinute = nowTime.getMinutes()
+
+    var hour = getHour > 12 ? getHour - 12 : getHour;
+    var halfClock = getHour > 12 ? 'PM' : 'AM';
+    var minute = getMinute < 10 ? '0' + getMinute : getMinute;
+    var tz = /\((.*)\)/.exec(nowTime.toString())[1];
+
+    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="' + hour + ':' + minute + halfClock + ' ' + tz + '" placeholder="3:04PM MST"></td><td><input class="form-control" type="text" value="NOW"></td></tr>');
 });

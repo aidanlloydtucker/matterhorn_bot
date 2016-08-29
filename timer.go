@@ -25,7 +25,8 @@ func startReminder(hour int, minutes int, message string, chatid int64) {
 }
 
 func parseTimes(timeStr string) (int, int, error) {
-	tm, err := time.ParseInLocation(time.Kitchen, timeStr, time.UTC)
+	tm, err := time.Parse(`3:04PM MST`, timeStr)
+	tm = tm.UTC()
 	if err != nil {
 		return 0, 0, err
 	}

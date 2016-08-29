@@ -35,7 +35,7 @@
   h4 Alert Times:
   table#alerttimes_table.table.table-bordered
     tr
-      th Time (Format: <u>3:04PM</u> UTC)
+      th Time (Format: <u>3:04PM MST</u>)
       th Message
     {{range .AlertTimes}}
       tr
@@ -45,6 +45,7 @@
           input.form-control type=text value={{.Message}}
     {{end}}
   button#add_alerttimes.btn.btn-sm Add Alert Time
+  button#add_alerttime_now.btn.btn-info.btn-sm Add Now as an Alert
   br
   br
   button#save.btn.btn-lg.btn-success.btn-fill.btn-round.center-block Save
