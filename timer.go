@@ -18,24 +18,6 @@ func startReminder(hour int, minutes int, message string, chatid int64) {
 	ticker := updateTicker(hour, minutes)
 	for {
 		<-ticker.C
-		v, err := redis.Values(redisConn.Do("HGETALL", REDIS_KEY_PREFIX+strconv.FormatInt(chatid, 10)))
-		if err != nil {
-			return
-		}
-		err, chat := FromRedisChatInfo(v)
-		if err != nil {
-			return
-		}
-		for _, at := range chat.AlertTimes {
-			atHour, atMin, err := parseTimes(at.Time)
-			if err != nil {
-				continue
-			}
-			if atHour == hour && atMin == minutes {
-				return
-			}
-		}
-
 		msg := tgbotapi.NewMessage(chatid, message)
 		mainBot.Send(msg)
 		ticker = updateTicker(hour, minutes)
@@ -43,41 +25,40 @@ func startReminder(hour int, minutes int, message string, chatid int64) {
 }
 
 func parseTimes(timeStr string) (int, int, error) {
-	splitNums := strings.Split(timeStr, ":")
-	hour, err := strconv.Atoi(splitNums[0])
+	tm, err := time.ParseInLocation(time.Kitchen, timeStr, time.UTC)
 	if err != nil {
 		return 0, 0, err
 	}
-	min, err := strconv.Atoi(splitNums[1])
-	if err != nil {
-		return 0, 0, err
-	}
-	return hour, min, nil
+
+	return tm.Hour(), tm.Minute(), nil
 }
 
 func loadTimeReminders() {
-	vals, err := redis.Strings(redisConn.Do("KEYS", REDIS_KEY_PREFIX+"*"))
+	rc := redisPool.Get()
+	defer rc.Close()
+
+	chats, err := redis.Strings(rc.Do("KEYS", REDIS_KEY_PREFIX+"*"))
 	if err != nil {
 		return
 	}
-	for _, key := range vals {
-		v, err := redis.Values(redisConn.Do("HGETALL", key))
+	for _, chatKey := range chats {
+		v, err := redis.String(rc.Do("GET", chatKey))
 		if err != nil {
 			continue
 		}
 
-		err, chat := FromRedisChatInfo(v)
+		chat, err := DecodeRedisChatInfo(v)
 		if err != nil {
 			continue
 		}
 
-		chatIdStr := strings.TrimPrefix(key, REDIS_KEY_PREFIX)
+		chatIdStr := strings.TrimPrefix(chatKey, REDIS_KEY_PREFIX)
 		chatId, err := strconv.ParseInt(chatIdStr, 10, 64)
 		if err != nil {
 			continue
 		}
 
-		for i, at := range chat.AlertTimes {
+		for i, at := range chat.Settings.AlertTimes {
 			if i >= MAX_ALERTS_ALLOWED {
 				break
 			}

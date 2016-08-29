@@ -21,7 +21,8 @@ var infoHandlerInfo = CommandInfo{
 }
 
 func (h InfoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "This bot was created by Aidan Lloyd-Tucker (telegram: @slaidan_lt)\n The github repo is: https://github.com/billybobjoeaglt/matterhorn_bot")
+	msg := tgbotapi.NewMessage(message.Chat.ID, "This bot was created by Aidan Lloyd-Tucker (telegram: @slaidan_lt)\n"+
+		"The github repo is: https://github.com/billybobjoeaglt/matterhorn_bot")
 	bot.Send(msg)
 }
 
@@ -32,4 +33,3 @@ func (h InfoHandler) Info() *CommandInfo {
 func (h InfoHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
 }
-

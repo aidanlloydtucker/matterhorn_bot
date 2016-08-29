@@ -9,7 +9,6 @@ import (
 
 	"net/http"
 
-	"github.com/garyburd/redigo/redis"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -105,13 +104,14 @@ func formatRedisKey(key int64) string {
 }
 
 func onMessageRedisRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(update.Message.Chat.ID)))
-	if err != nil {
-		return
-	}
+	rc := redisPool.Get()
+	defer rc.Close()
 
-	if !exists {
-		newChat := NewRedisChatInfo()
+	ciPtr, httpCode, err := getRedisChatInfo(rc, update.Message.Chat.ID)
+	if (err != nil || ciPtr == nil) && httpCode != http.StatusNotFound {
+		return
+	} else if httpCode == http.StatusNotFound {
+		newChat := ChatInfo{}
 		if update.Message.Chat.Title == "" {
 			if update.Message.Chat.UserName != "" {
 				newChat.Name = update.Message.Chat.UserName
@@ -122,28 +122,23 @@ func onMessageRedisRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			newChat.Name = update.Message.Chat.Title
 		}
 		newChat.Type = update.Message.Chat.Type
-		redisConn.Do("HMSET", redis.Args{}.Add(formatRedisKey(update.Message.Chat.ID)).AddFlat(newChat)...)
 
+		err = setRedisChatInfo(rc, newChat, update.Message.Chat.ID)
+		if err != nil {
+			log.Println("Error setting redis chat info:", err)
+		}
 	} else {
+		ci := *ciPtr
 		if update.Message.Text != "" {
-			v, err := redis.Values(redisConn.Do("HGETALL", formatRedisKey(update.Message.Chat.ID)))
-			if err != nil {
-				return
-			}
-
-			err, chat := FromRedisChatInfo(v)
-			if err != nil {
-				return
-			}
-
-			for _, word := range chat.KeyWords {
+			for _, word := range ci.Settings.KeyWords {
 				if strings.Contains(update.Message.Text, word.Key) {
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, word.Message)
 					bot.Send(msg)
 				}
 			}
 		} else if update.Message.NewChatTitle != "" {
-			redisConn.Do("HSET", redis.Args{}.Add(formatRedisKey(update.Message.Chat.ID)).Add("name").Add(update.Message.NewChatTitle)...)
+			ci.Name = update.Message.NewChatTitle
+			setRedisChatInfo(rc, ci, update.Message.Chat.ID)
 		}
 	}
 }

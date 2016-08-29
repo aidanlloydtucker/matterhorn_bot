@@ -35,7 +35,7 @@
   h4 Alert Times:
   table#alerttimes_table.table.table-bordered
     tr
-      th Time (Format: <u>HH:MM</u> 24 hour time in UTC)
+      th Time (Format: <u>3:04PM</u> UTC)
       th Message
     {{range .AlertTimes}}
       tr

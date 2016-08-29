@@ -1,7 +1,7 @@
 $("#save").click(function(){
     var settings = {
-        KeyWords: [],
-        AlertTimes: [],
+        key_words: [],
+        alert_times: [],
     };
     $("input[setting]").each(function() {
         settings[$(this).attr("setting")] = this.checked
@@ -17,7 +17,7 @@ $("#save").click(function(){
             key: keyIn,
             msg: msgIn,
         }
-        settings.KeyWords.push(keyword);
+        settings.key_words.push(keyword);
     });
     $("#alerttimes_table tr:gt(0)").each(function() {
             var inputs = $(this).find('input');
@@ -30,7 +30,7 @@ $("#save").click(function(){
                 time: timeIn,
                 msg: msgIn,
             }
-            settings.AlertTimes.push(keyword);
+            settings.alert_times.push(keyword);
         });
     $.ajax({
         type: "PUT",

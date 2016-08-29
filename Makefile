@@ -6,26 +6,16 @@ BUILD_TIME=$(shell date +%s)
 
 LDFLAGS += -X \"main.Version=$(VERSION)\"
 LDFLAGS += -X \"main.BuildTime=$(BUILD_TIME)\"
-LDFLAGS += -X \"main.BotToken=$(BOT_TOKEN)\"
-LDFLAGS += -X \"main.HttpPort=$(HTTP_PORT)\"
-LDFLAGS += -X \"main.IP=$(IP)\"
-LDFLAGS += -X \"main.WebhookPort=$(WEBHOOK_PORT)\"
-LDFLAGS += -X \"main.WebhookCert=$(WEBHOOK_CERT)\"
-LDFLAGS += -X \"main.WebhookKey=$(WEBHOOK_KEY)\"
-LDFLAGS += -X \"main.EnableWebhook=$(ENABLE_WEBHOOK)\"
 
 .PHONY: build clean
 
-setup:
-ifndef BOT_TOKEN
-	$(error BOT_TOKEN is not set.)
-endif
-
-build: setup
+build:
 	go build -ldflags "$(LDFLAGS)"
 
-install: setup
+deps:
 	go get -d ./...
+
+install: setup deps
 	go install -ldflags "$(LDFLAGS)"
 
 clean:

@@ -3,13 +3,15 @@ package main
 import (
 	"net/http"
 
-	"encoding/json"
-
 	"strconv"
 
+	"errors"
+
+	"log"
+
 	"github.com/garyburd/redigo/redis"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/contrib/gzip"
+	"github.com/gin-gonic/gin"
 	"github.com/yosssi/ace"
 	"github.com/yosssi/ace-proxy"
 )
@@ -17,156 +19,160 @@ import (
 var p = proxy.New(&ace.Options{BaseDir: "views"})
 
 func startWebsite() {
+	r := gin.Default()
 
-	router := mux.NewRouter()
-	router.NotFoundHandler = http.HandlerFunc(webNotFoundHandler)
-	router.HandleFunc("/chat/{id}", webChatHandler).Methods("GET")
-	router.HandleFunc("/chat/{id}", webChatChangeHandler).Methods("PUT")
-	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./static/"))))
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	allHandler := handlers.CompressHandler(router)
+	/*tpl, err := p.Load("base", "chat", nil)
+	if err != nil {
+		panic(err)
+	}
 
-	http.ListenAndServe(":"+HttpPort, allHandler)
+	r.SetHTMLTemplate(tpl)*/
+
+	r.Handle("GET", "/chat/:id", webChatHandler)
+	r.Handle("PUT", "/chat/:id", webChatChangeHandler)
+	r.StaticFS("/public/", http.Dir("./static/"))
+
+	r.Run(":" + HttpPort)
 }
 
-func webNotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-
-	tpl, err := p.Load("base", "error", nil)
+func webChatHandler(c *gin.Context) {
+	chatIdStr := c.Param("id")
+	chatID, err := strconv.ParseInt(chatIdStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	data := map[string]interface{}{
-		"Status":  404,
-		"Message": "Not Found: The page you requested could not be found.",
-	}
+	rc := redisPool.Get()
+	defer rc.Close()
 
-	if err := tpl.Execute(w, data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-func webChatHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	chatId, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if !exists {
-		http.Error(w, "ChatId is not in database", http.StatusNotFound)
+	ciPtr, httpCode, err := getRedisChatInfo(rc, chatID)
+	if err != nil || httpCode != http.StatusOK || ciPtr == nil {
+		c.AbortWithError(httpCode, err)
 		return
 	}
 
-	v, err := redis.Values(redisConn.Do("HGETALL", formatRedisKey(chatId)))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err, chat := FromRedisChatInfo(v)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	ci := *ciPtr
 
 	tpl, err := p.Load("base", "chat", nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
+	log.Printf("CI: %#v\n", ci)
+
 	data := map[string]interface{}{
-		"ChatName": chat.Name,
-		"ChatId":   chatId,
+		"ChatName": ci.Name,
+		"ChatId":   chatID,
 		"SettingsBool": map[string]interface{}{
-			"NSFW": chat.NSFW,
+			"NSFW": ci.Settings.NSFW,
 		},
-		"KeyWords":   chat.KeyWords,
-		"AlertTimes": chat.AlertTimes,
+		"KeyWords":   ci.Settings.KeyWords,
+		"AlertTimes": ci.Settings.AlertTimes,
 	}
 
-	if err := tpl.Execute(w, data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	c.Header("Content-Type", "text/HTML")
+
+	if err := tpl.Execute(c.Writer, data); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 }
 
-func webChatChangeHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	chatId, err := strconv.ParseInt(vars["id"], 10, 64)
+func webChatChangeHandler(c *gin.Context) {
+	chatIdStr := c.Param("id")
+	chatID, err := strconv.ParseInt(chatIdStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.Error(err)
 		return
 	}
 
-	exists, err := redis.Bool(redisConn.Do("EXISTS", formatRedisKey(chatId)))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	rc := redisPool.Get()
+	defer rc.Close()
+
+	ciPtr, httpCode, err := getRedisChatInfo(rc, chatID)
+	if err != nil || httpCode != http.StatusOK || ciPtr == nil {
+		c.AbortWithError(httpCode, err)
 		return
 	}
-	if !exists {
-		http.Error(w, "ChatId is not in database", http.StatusNotFound)
-		return
-	}
+
+	ci := *ciPtr
 
 	var settings ChatSettings
 
-	err = json.NewDecoder(r.Body).Decode(&settings)
+	err = c.BindJSON(&settings)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	var newKWs []KeyWord
 
 	for _, kw := range settings.KeyWords {
-		if kw.Key != "" && kw.Message != "" {
-			newKWs = append(newKWs, kw)
+		if kw.Key == "" || kw.Message == "" {
+			continue
 		}
+		newKWs = append(newKWs, kw)
 	}
-	settings.KeyWords = newKWs
 
 	var newATs []AlertTime
-	// struct{}{} doesnt take up any space
-	dupATs := make(map[string]struct{})
 	var setAlerts int
 
 	for _, at := range settings.AlertTimes {
-		if at.Time != "" && at.Message != "" && timeRegex.MatchString(at.Time) {
-			if _, ok := dupATs[at.Time]; !ok {
-				dupATs[at.Time] = struct{}{}
-				newATs = append(newATs, at)
-				if setAlerts < MAX_ALERTS_ALLOWED {
-					hour, min, err := parseTimes(at.Time)
-					if err != nil {
-						continue
-					}
-					go startReminder(hour, min, at.Message, chatId)
-				}
-				setAlerts++
-			}
+		if at.Time == "" || at.Message == "" {
+			continue
 		}
+		newATs = append(newATs, at)
+		if setAlerts < MAX_ALERTS_ALLOWED {
+			hour, min, err := parseTimes(at.Time)
+			if err != nil {
+				continue
+			}
+			go startReminder(hour, min, at.Message, chatID)
+		}
+		setAlerts++
 	}
-	settings.AlertTimes = newATs
 
-	sJson, err := json.Marshal(settings)
+	ci.Settings.KeyWords = newKWs
+	ci.Settings.AlertTimes = newATs
+	ci.Settings.NSFW = settings.NSFW
+
+	err = setRedisChatInfo(rc, ci, chatID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+}
 
-	_, err = redisConn.Do("HSET", redis.Args{}.Add(formatRedisKey(chatId)).Add("settings").Add(string(sJson))...)
+func getRedisChatInfo(rc redis.Conn, chatID int64) (*ChatInfo, int, error) {
+	exists, err := redis.Bool(rc.Do("EXISTS", formatRedisKey(chatID)))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, http.StatusInternalServerError, err
 	}
+	if !exists {
+		return nil, http.StatusNotFound, errors.New("ChatId is not in database")
+	}
+
+	v, err := redis.String(rc.Do("GET", formatRedisKey(chatID)))
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	ci, err := DecodeRedisChatInfo(v)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	return &ci, http.StatusOK, nil
+}
+
+func setRedisChatInfo(rc redis.Conn, ci ChatInfo, chatID int64) error {
+	ciStr, err := EncodeRedisChatInfo(ci)
+	if err != nil {
+		return err
+	}
+	_, err = rc.Do("SET", redis.Args{}.Add(formatRedisKey(chatID)).Add(ciStr)...)
+	return err
 }

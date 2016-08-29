@@ -1,0 +1,34 @@
+package commands
+
+import (
+	"gopkg.in/telegram-bot-api.v4"
+)
+
+type {{.CommandNameCaps}}Handler struct {
+}
+
+var {{.CommandName}}HandlerInfo = CommandInfo{
+	Command:     "{{.CommandName}}",
+	Args:        "",
+	Permission:  3,
+	Description: "",
+	LongDesc:    "",
+	Usage:       "/{{.CommandName}}",
+	Examples: []string{
+		"/{{.CommandName}}",
+	},
+	ResType: "message",
+}
+
+func (h {{.CommandNameCaps}}Handler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+	msg := tgbotapi.NewMessage(message.Chat.ID, "")
+	bot.Send(msg)
+}
+
+func (h {{.CommandNameCaps}}Handler) Info() *CommandInfo {
+	return &{{.CommandName}}HandlerInfo
+}
+
+func (h {{.CommandNameCaps}}Handler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
+}

@@ -19,21 +19,17 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// Build Vars
 var (
-	BotToken      string
-	Version       string
-	BuildTime     string
-	HttpPort      string
-	IP            string
-	WebhookPort   string
-	WebhookCert   string
-	WebhookKey    string
-	EnableWebhook string
+	Version   string
+	BuildTime string
 )
 
-var redisConn redis.Conn
+var redisPool *redis.Pool
 
 var CommandHandlers []commands.Command
+
+var HttpPort string
 
 func main() {
 	app := cli.NewApp()
@@ -44,6 +40,45 @@ func main() {
 	app.Authors = []cli.Author{
 		{
 			Name: "Aidan Lloyd-Tucker",
+		},
+	}
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "token, t",
+			Usage: "The telegram bot api token",
+		},
+		cli.StringFlag{
+			Name:  "http_port, p",
+			Usage: "The http port to open connections for the settings webpage",
+			Value: "8080",
+		},
+		cli.StringFlag{
+			Name:  "ip",
+			Usage: "The IP for the settings webpage and webhook port",
+		},
+		cli.StringFlag{
+			Name:  "webhook_port",
+			Usage: "The telegram bot api webhook port",
+			Value: "8443",
+		},
+		cli.StringFlag{
+			Name:  "webhook_cert",
+			Usage: "The telegram bot api webhook cert",
+			Value: "./ignored/cert.pem",
+		},
+		cli.StringFlag{
+			Name:  "webhook_key",
+			Usage: "The telegram bot api webhook key",
+			Value: "./ignored/key.key",
+		},
+		cli.BoolFlag{
+			Name:  "enable_webhook, w",
+			Usage: "Enables webhook if true",
+		},
+		cli.StringFlag{
+			Name:  "redis_address, r",
+			Usage: "The address of the redis server",
+			Value: ":6379",
 		},
 	}
 
@@ -58,29 +93,7 @@ func main() {
 	app.Run(os.Args)
 }
 
-func setDefaults() {
-	if HttpPort == "" {
-		HttpPort = "8080"
-	}
-
-	if WebhookPort == "" {
-		WebhookPort = "8443"
-	}
-
-	if WebhookCert == "" {
-		WebhookCert = "./ignored/cert.pem"
-	}
-
-	if WebhookKey == "" {
-		WebhookKey = "./ignored/key.key"
-	}
-}
-
 func runApp(c *cli.Context) error {
-	setDefaults()
-
-	var err error
-
 	// Commands
 
 	AddCommand(commands.BatmanHandler{})
@@ -120,22 +133,32 @@ func runApp(c *cli.Context) error {
 	commands.CommandList = &CommandHandlers
 
 	// Connect to redis
-	redisConn, err = redis.Dial("tcp", ":6379")
-	if err != nil {
-		log.Println("Redis is offline")
-		return err
+	redisPool = &redis.Pool{
+		MaxIdle:     3,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", c.String("redis_address"))
+		},
+		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			if time.Since(t) < time.Minute {
+				return nil
+			}
+			_, err := c.Do("PING")
+			return err
+		},
 	}
-	defer redisConn.Close()
+
+	HttpPort = c.String("http_port")
 
 	// Add URL for settings command
-	if IP != "" {
-		commands.SettingsURL = IP + ":" + HttpPort + "/chat/"
+	if c.IsSet("ip") {
+		commands.SettingsURL = c.String("ip") + ":" + c.String("http_port") + "/chat/"
 	} else {
-		IP, err = checkIP()
+		IP, err := checkIP()
 		if err != nil {
-			commands.SettingsURL = "localhost:" + HttpPort + "/chat/"
+			commands.SettingsURL = "localhost:" + c.String("http_port") + "/chat/"
 		} else {
-			commands.SettingsURL = IP + ":" + HttpPort + "/chat/"
+			commands.SettingsURL = IP + ":" + c.String("http_port") + "/chat/"
 		}
 	}
 
@@ -143,16 +166,16 @@ func runApp(c *cli.Context) error {
 
 	var webhookConf *WebhookConfig = nil
 
-	if IP != "" && EnableWebhook == "YES" {
+	if c.IsSet("ip") && c.Bool("enable_webhook") {
 		webhookConf = &WebhookConfig{
-			IP:       IP,
-			CertPath: WebhookCert,
-			KeyPath:  WebhookKey,
-			Port:     WebhookPort,
+			IP:       c.String("ip"),
+			CertPath: c.String("webhook_cert"),
+			KeyPath:  c.String("webhook_key"),
+			Port:     c.String("webhook_port"),
 		}
 	}
 
-	go startBot(BotToken, webhookConf)
+	go startBot(c.String("token"), webhookConf)
 
 	// Start Website
 
