@@ -48,7 +48,7 @@ $("#add_keyword").click(function(){
 });
 
 $("#add_alerttimes").click(function(){
-    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="" placeholder="3:04PM MST"></td><td><input class="form-control" type="text" value=""></td></tr>');
+    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="" placeholder="3:04PM -07"></td><td><input class="form-control" type="text" value=""></td></tr>');
 });
 
 $("#add_alerttime_now").click(function(){
@@ -59,7 +59,9 @@ $("#add_alerttime_now").click(function(){
     var hour = getHour > 12 ? getHour - 12 : getHour;
     var halfClock = getHour > 12 ? 'PM' : 'AM';
     var minute = getMinute < 10 ? '0' + getMinute : getMinute;
-    var tz = /\((.*)\)/.exec(nowTime.toString())[1];
+    var tz = nowTime.getTimezoneOffset()/60 * -1
+    tz = tz < 10 && tz >= 0 ? '0' + tz : tz;
+    tz = tz > -10 && tz <= 0 ? '-0' + (tz * -1) : tz;
 
-    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="' + hour + ':' + minute + halfClock + ' ' + tz + '" placeholder="3:04PM MST"></td><td><input class="form-control" type="text" value="NOW"></td></tr>');
+    $('#alerttimes_table tr:last').after('<tr><td><input class="form-control" type="text" value="' + hour + ':' + minute + halfClock + ' ' + tz + '" placeholder="3:04PM -07"></td><td><input class="form-control" type="text" value="NOW"></td></tr>');
 });

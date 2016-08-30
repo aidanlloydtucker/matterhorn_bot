@@ -182,7 +182,7 @@ func runApp(c *cli.Context) error {
 	go startWebsite()
 
 	// Load reminders
-	go loadTimeReminders()
+	go initTimers()
 
 	// Safe Exit
 

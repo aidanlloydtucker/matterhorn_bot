@@ -7,8 +7,6 @@ import (
 
 	"errors"
 
-	"log"
-
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -61,8 +59,6 @@ func webChatHandler(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-
-	log.Printf("CI: %#v\n", ci)
 
 	data := map[string]interface{}{
 		"ChatName": ci.Name,
@@ -119,22 +115,15 @@ func webChatChangeHandler(c *gin.Context) {
 	}
 
 	var newATs []AlertTime
-	var setAlerts int
 
 	for _, at := range settings.AlertTimes {
 		if at.Time == "" || at.Message == "" {
 			continue
 		}
 		newATs = append(newATs, at)
-		if setAlerts < MAX_ALERTS_ALLOWED {
-			hour, min, err := parseTimes(at.Time)
-			if err != nil {
-				continue
-			}
-			go startReminder(hour, min, at.Message, chatID)
-		}
-		setAlerts++
 	}
+
+	insertTimersByChatID(newATs, chatID)
 
 	ci.Settings.KeyWords = newKWs
 	ci.Settings.AlertTimes = newATs
