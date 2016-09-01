@@ -131,7 +131,7 @@ func onMessageRedisRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		ci := *ciPtr
 		if update.Message.Text != "" {
 			for _, word := range ci.Settings.KeyWords {
-				if strings.Contains(update.Message.Text, word.Key) {
+				if strings.Contains(strings.ToLower(update.Message.Text), strings.ToLower(word.Key)) {
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, word.Message)
 					bot.Send(msg)
 				}
