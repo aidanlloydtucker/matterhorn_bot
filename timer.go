@@ -31,7 +31,7 @@ func startTimer(when time.Time, message string, chatID int64) *time.Timer {
 			msg := tgbotapi.NewMessage(chatID, message)
 			mainBot.Send(msg)
 
-			timer = time.NewTimer(INTERVAL_PERIOD)
+			*timer = *(time.NewTimer(INTERVAL_PERIOD))
 		}
 	}()
 	return timer
