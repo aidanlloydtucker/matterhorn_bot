@@ -108,7 +108,7 @@ func webChatChangeHandler(c *gin.Context) {
 	var newKWs []KeyWord
 
 	for _, kw := range settings.KeyWords {
-		if kw.Key == "" || kw.Message == "" {
+		if kw.Key == "" || kw.Message == "" || len(kw.Key) <= 2 {
 			continue
 		}
 		newKWs = append(newKWs, kw)
@@ -121,6 +121,10 @@ func webChatChangeHandler(c *gin.Context) {
 			continue
 		}
 		newATs = append(newATs, at)
+	}
+
+	if len(newATs) > 10 {
+		c.AbortWithError(http.StatusBadRequest, errors.New("Too many alerts"))
 	}
 
 	insertTimersByChatID(newATs, chatID)
