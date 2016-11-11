@@ -42,13 +42,13 @@ func (h RandomHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 	min := 0
 	max := 100
 
-	if len(args) > 0 {
+	if len(args) > 0 && args[0] != "" {
 		arg1, err := strconv.Atoi(args[0])
 		if err != nil {
 			errMsg = NewErrorMessage(message.Chat.ID, err)
 			return
 		}
-		if len(args) > 1 {
+		if len(args) > 1 && args[0] != "" {
 			arg2, err := strconv.Atoi(args[1])
 			if err != nil {
 				errMsg = NewErrorMessage(message.Chat.ID, err)
