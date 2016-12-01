@@ -25,6 +25,8 @@ type WebhookConfig struct {
 }
 
 func startBot(token string, webhookConf *WebhookConfig) {
+	log.Println("Starting Bot")
+
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Fatalln(err)

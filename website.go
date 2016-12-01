@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"log"
 	"strconv"
 
 	"errors"
@@ -16,7 +17,13 @@ import (
 
 var p = proxy.New(&ace.Options{BaseDir: "views"})
 
-func startWebsite() {
+func startWebsite(rel bool) {
+	log.Println("Starting website")
+
+	if rel {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := gin.Default()
 
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
@@ -33,6 +40,7 @@ func startWebsite() {
 	r.StaticFS("/public/", http.Dir("./static/"))
 
 	r.Run(":" + HttpPort)
+	log.Println("Started Website")
 }
 
 func webChatHandler(c *gin.Context) {

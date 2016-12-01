@@ -75,6 +75,10 @@ func main() {
 			Name:  "enable_webhook, w",
 			Usage: "Enables webhook if true",
 		},
+		cli.BoolFlag{
+			Name:  "prod",
+			Usage: "Sets bot to production mode",
+		},
 		cli.StringFlag{
 			Name:  "redis_address, r",
 			Usage: "The address of the redis server",
@@ -96,6 +100,8 @@ func main() {
 }
 
 func runApp(c *cli.Context) error {
+	log.Println("Running app")
+
 	// Commands
 	AddCommand(commands.BatmanHandler{})
 	AddCommand(commands.BenchHandler{})
@@ -135,6 +141,8 @@ func runApp(c *cli.Context) error {
 	// Help Command Setup
 	commands.CommandList = &CommandHandlers
 
+	log.Println("Loaded all commands")
+
 	// Connect to redis
 	redisPool = &redis.Pool{
 		MaxIdle:     3,
@@ -150,6 +158,8 @@ func runApp(c *cli.Context) error {
 			return err
 		},
 	}
+
+	log.Println("Connected to Redis")
 
 	HttpPort = c.String("http_port")
 
@@ -178,11 +188,13 @@ func runApp(c *cli.Context) error {
 		}
 	}
 
+	log.Println("Starting bot and website")
+
 	go startBot(c.String("token"), webhookConf)
 
 	// Start Website
 
-	go startWebsite()
+	go startWebsite(c.Bool("prod"))
 
 	// Load reminders
 	go initTimers()
