@@ -83,10 +83,12 @@ func main() {
 	}
 
 	app.Version = Version
+	commands.BotInfoVersion = app.Version
 
 	num, err := strconv.ParseInt(BuildTime, 10, 64)
 	if err == nil {
 		app.Compiled = time.Unix(num, 0)
+		commands.BotInfoTimestamp = &app.Compiled
 	}
 
 	app.Action = runApp
@@ -95,7 +97,6 @@ func main() {
 
 func runApp(c *cli.Context) error {
 	// Commands
-
 	AddCommand(commands.BatmanHandler{})
 	AddCommand(commands.BenchHandler{})
 	AddCommand(commands.BitcoinHandler{})
