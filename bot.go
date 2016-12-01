@@ -10,6 +10,8 @@ import (
 	"net/http"
 
 	"gopkg.in/telegram-bot-api.v4"
+
+	mbCommands "github.com/billybobjoeaglt/matterhorn_bot/commands"
 )
 
 var mainBot *tgbotapi.BotAPI
@@ -68,6 +70,12 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		log.Printf("[%s] %s", update.Message.From.String(), update.Message.Text)
 
 		go onMessageRedisRoutine(bot, update)
+
+		// FOR INLINE 8BALL COMMANDS. FIGURE OUT A BETTER, MORE MODULAR WAY TO DO THIS LATER
+		if update.Message.Text != "" && strings.Contains(update.Message.Text, "#8ball") {
+			go mbCommands.MagicBallHandler{}.HandleCommand(bot, update.Message, []string{})
+		}
+		// ENDING THE 8BALL COMMAND SECTION
 
 		if update.Message.Text != "" && update.Message.IsCommand() {
 			for _, cmd := range CommandHandlers {

@@ -124,6 +124,7 @@ func runApp(c *cli.Context) error {
 	AddCommand(commands.RektHandler{})
 	AddCommand(commands.InfoHandler{})
 	AddCommand(commands.RandomHandler{})
+	AddCommand(commands.MagicBallHandler{})
 
 	// Load Custom Commands
 	custom.LoadCustom()
