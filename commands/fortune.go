@@ -43,7 +43,7 @@ func (h FortuneHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 }
 
 func GetFortune() (error, string) {
-	fOut, err := exec.Command("fortune", "-a", "fortunes", "riddles").Output()
+	fOut, err := exec.Command("/usr/games/fortune", "-a", "fortunes", "riddles").Output()
 	if err != nil {
 		return err, ""
 	}
