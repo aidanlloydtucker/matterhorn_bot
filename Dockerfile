@@ -6,7 +6,7 @@ RUN apt-get -y update && apt-get install -y fortunes
 
 COPY . /go/src/github.com/billybobjoeaglt/matterhorn_bot/
 WORKDIR /go/src/github.com/billybobjoeaglt/matterhorn_bot/
-RUN VERSION=$version make build
+RUN make build VERSION=$version
 
 EXPOSE 8080 8080
 
