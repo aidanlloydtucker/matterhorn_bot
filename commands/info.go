@@ -1,8 +1,9 @@
 package commands
 
 import (
-	"gopkg.in/telegram-bot-api.v4"
 	"time"
+
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 type InfoHandler struct {
