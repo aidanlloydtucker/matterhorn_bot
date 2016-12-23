@@ -32,7 +32,7 @@ func (h UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
-		msg = tgbotapi.NewMessage(message.Chat.ID, "<b>"+def.Word+"</b>\n───\n"+def.Definition+"\n\n<i>"+def.Example+"</i>")
+		msg = tgbotapi.NewMessage(message.Chat.ID, "<b>"+def.Word+"</b>\n———\n"+def.Definition+"\n\n<i>"+def.Example+"</i>")
 		msg.ReplyToMessageID = message.MessageID
 		msg.ParseMode = "HTML"
 	}
