@@ -20,6 +20,7 @@ var echoHandlerInfo = CommandInfo{
 
 func (h EchoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, args[0])
+	msg.ParseMode = "Markdown"
 	bot.Send(msg)
 }
 
