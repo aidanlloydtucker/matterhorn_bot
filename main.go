@@ -138,8 +138,13 @@ func runApp(c *cli.Context) error {
 		CommandHandlers = append(CommandHandlers, cmd)
 	}
 
+	cmdMap := make(map[string]*commands.CommandInfo)
+	for _, cmd := range CommandHandlers {
+		cmdMap[cmd.Info().Command] = cmd.Info()
+	}
+
 	// Help Command Setup
-	commands.CommandList = &CommandHandlers
+	commands.CommandMap = cmdMap
 
 	log.Println("Loaded all commands")
 

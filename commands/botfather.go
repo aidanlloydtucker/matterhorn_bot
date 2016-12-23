@@ -11,7 +11,7 @@ var botFatherHandlerInfo = CommandInfo{
 	Permission:  3,
 	Description: "gets botfather list",
 	LongDesc:    "",
-	Usage:       "/botfather]",
+	Usage:       "/botfather",
 	Examples: []string{
 		"/botfather",
 	},
@@ -20,8 +20,8 @@ var botFatherHandlerInfo = CommandInfo{
 
 func (h BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msgStr string
-	for _, cmd := range *CommandList {
-		msgStr += cmd.Info().Command + " - " + cmd.Info().Description + "\n"
+	for _, cmd := range CommandMap {
+		msgStr += cmd.Command + " - " + cmd.Description + "\n"
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, msgStr)
 	bot.Send(msg)

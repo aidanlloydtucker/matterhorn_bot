@@ -1,6 +1,10 @@
 package commands
 
-import "gopkg.in/telegram-bot-api.v4"
+import (
+	"gopkg.in/telegram-bot-api.v4"
+	"errors"
+	"fmt"
+)
 
 type HelpHandler struct {
 }
@@ -11,21 +15,65 @@ var helpHandlerInfo = CommandInfo{
 	Permission:  3,
 	Description: "lists commands",
 	LongDesc:    "",
-	Usage:       "/help",
+	Usage:       "/help (command)",
 	Examples: []string{
 		"/help",
+		"/help ping",
 	},
 	ResType: "message",
 }
 
 func (h HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
-	var msgStr string = "<b>Commands:</b>\n"
-	for _, cmd := range *CommandList {
-		msgStr += "• " + cmd.Info().Command + " - " + cmd.Info().Description + "\n"
+	var msgStr string
+	var err error
+	if message.CommandArguments() != "" {
+		msgStr, err = getCommandInfo(message.CommandArguments())
+	} else {
+		msgStr = listCommands()
 	}
-	msg := tgbotapi.NewMessage(message.Chat.ID, msgStr)
-	msg.ParseMode = "HTML"
+
+	var msg tgbotapi.MessageConfig
+	if err != nil {
+		msg = NewErrorMessage(message.Chat.ID, err)
+	} else {
+		msg = tgbotapi.NewMessage(message.Chat.ID, msgStr)
+		msg.ParseMode = "HTML"
+	}
 	bot.Send(msg)
+}
+
+func listCommands() string {
+	msgStr := "<b>Commands:</b>\n"
+	for _, cmd := range CommandMap {
+		msgStr += "• " + cmd.Command + " - " + cmd.Description + "\n"
+	}
+	return msgStr
+}
+
+func getCommandInfo(command string) (string, error) {
+	cmd, ok := CommandMap[command]
+	if !ok {
+		return "", errors.New("Unknown command")
+	}
+
+	desc := cmd.LongDesc
+	if desc == "" {
+		desc = cmd.Description
+	}
+
+	var examples string
+	for _, ex := range cmd.Examples {
+		examples += fmt.Sprintf("\t• <code>%s</code>\n", ex)
+	}
+
+	msgStr := fmt.Sprintf(`<b>%s</b>
+———
+<b>Description</b> %s. Will return a %s.
+<b>Usage</b> <pre>%s</pre>
+<b>Examples</b>
+%v`, cmd.Command, desc, cmd.ResType, cmd.Usage, examples)
+
+	return msgStr, nil
 }
 
 func (h HelpHandler) Info() *CommandInfo {
@@ -36,4 +84,4 @@ func (h HelpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
 }
 
-var CommandList *[]Command
+var CommandMap map[string]*CommandInfo
