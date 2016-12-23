@@ -27,8 +27,6 @@ var (
 
 var redisPool *redis.Pool
 
-var CommandHandlers []commands.Command
-
 var HttpPort string
 
 func main() {
@@ -103,34 +101,7 @@ func runApp(c *cli.Context) error {
 	log.Println("Running app")
 
 	// Commands
-	AddCommand(commands.BatmanHandler{})
-	AddCommand(commands.BenchHandler{})
-	AddCommand(commands.BitcoinHandler{})
-	AddCommand(commands.CatHandler{})
-	AddCommand(commands.UrbanHandler{})
-	AddCommand(commands.ClearHandler{})
-	AddCommand(commands.EchoHandler{})
-	AddCommand(commands.HelpHandler{})
-	AddCommand(commands.FortuneHandler{})
-	AddCommand(commands.LennyHandler{})
-	AddCommand(commands.BashHandler{})
-	AddCommand(commands.LmgtfyHandler{})
-	AddCommand(commands.PingHandler{})
-	AddCommand(commands.RedditHandler{})
-	AddCommand(commands.LinesHandler{})
-	AddCommand(commands.SquareHandler{})
-	AddCommand(commands.StartHandler{})
-	AddCommand(commands.XkcdHandler{})
-	AddCommand(commands.BotFatherHandler{})
-	AddCommand(commands.SettingsHandler{})
-	AddCommand(commands.MemeHandler{})
-	AddCommand(commands.MemeListHandler{})
-	AddCommand(commands.ShameHandler{})
-	AddCommand(commands.HotHandler{})
-	AddCommand(commands.RektHandler{})
-	AddCommand(commands.InfoHandler{})
-	AddCommand(commands.RandomHandler{})
-	AddCommand(commands.MagicBallHandler{})
+	LoadCommands()
 
 	// Load Custom Commands
 	custom.LoadCustom()

@@ -1,0 +1,30 @@
+package main
+
+// GENERATED FILE DO NOT EDIT
+// go run tools/gen_cmd_list/main.go {{.Args}}
+
+import (
+	"regexp"
+	"github.com/billybobjoeaglt/matterhorn_bot/commands"
+{{range .Packages}}	"{{.}}"
+{{end}}
+)
+
+var CommandHandlers []commands.Command
+
+func LoadCommands() {
+{{range .Handlers}}	addCommand({{.Package}}.{{.Name}}{})
+{{end}}
+}
+
+func addCommand(cmd commands.Command) {
+	if cmd.Info().Args != "" {
+		argReg, err := regexp.Compile(cmd.Info().Args)
+		if err != nil {
+			return
+		}
+		cmd.Info().ArgsRegex = *argReg
+	}
+
+	CommandHandlers = append(CommandHandlers, cmd)
+}
