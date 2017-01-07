@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"errors"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -60,8 +62,12 @@ func (h RandomHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 			max = arg1
 		}
 	}
+	if max <= 0 || min < 0 {
+		errMsg = NewErrorMessage(message.Chat.ID, errors.New("The max cannot be 0 or below and the min cannot be below 0"))
+		return
+	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.Itoa(rand.Intn(max-min)+min))
+	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.Itoa(rand.Intn((max-min)+1)+min))
 
 	bot.Send(msg)
 }

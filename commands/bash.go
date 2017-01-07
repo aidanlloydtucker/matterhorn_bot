@@ -3,8 +3,6 @@ package commands
 import (
 	"math/rand"
 
-	"time"
-
 	"github.com/PuerkitoBio/goquery"
 	"gopkg.in/telegram-bot-api.v4"
 )
@@ -50,8 +48,6 @@ func GetBash() (error, string) {
 	if err != nil {
 		return err, ""
 	}
-
-	rand.Seed(time.Now().UTC().UnixNano())
 
 	qtList := doc.Find(".qt")
 

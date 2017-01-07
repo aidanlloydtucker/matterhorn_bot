@@ -1,0 +1,8 @@
+language: go
+
+go:
+  - 1.7
+  - master
+
+go_import_path: github.com/billybobjoeaglt/matterhorn_bot
+

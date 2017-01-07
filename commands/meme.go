@@ -19,6 +19,74 @@ import (
 const FontMin = 40
 const LineSpacing = 1.5
 
+type MemeHandler struct {
+}
+
+var memeHandlerInfo = CommandInfo{
+	Command:     "meme",
+	Args:        `(.+) ["'](.*?)["'] ["'](.*?)["']`,
+	Permission:  3,
+	Description: "makes a meme",
+	LongDesc:    "",
+	Usage:       `/meme [meme] "(top text)" "(bottom text)"`,
+	Examples: []string{
+		`/meme success "uses /meme for the first time" "it works"`,
+	},
+	ResType: "photo",
+}
+
+func (h MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+	var errMsg tgbotapi.MessageConfig
+
+	defer func(bot *tgbotapi.BotAPI) {
+		if errMsg.Text != "" {
+			bot.Send(errMsg)
+		}
+	}(bot)
+
+	memeFn := "./resources/meme-tmpl/" + args[0] + ".jpg"
+
+	if _, err := os.Stat(memeFn); os.IsNotExist(err) {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
+	}
+
+	imgFileBytes, err := ioutil.ReadFile(memeFn)
+	if err != nil {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
+
+	}
+
+	err, memeImg := makeMeme(imgFileBytes, args[1], args[2])
+	if err != nil {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
+
+	}
+
+	file := tgbotapi.FileBytes{
+		Bytes: memeImg.Bytes(),
+		Name:  "meme.jpg",
+	}
+
+	msg := tgbotapi.NewPhotoUpload(message.Chat.ID, file)
+
+	_, err = bot.Send(msg)
+	if err != nil {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
+	}
+}
+
+func (h MemeHandler) Info() *CommandInfo {
+	return &memeHandlerInfo
+}
+
+func (h MemeHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+	return false, ""
+}
+
 func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *bytes.Buffer) {
 	topText = strings.ToUpper(topText)
 	bottomText = strings.ToUpper(bottomText)
@@ -90,72 +158,4 @@ func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *b
 	}
 
 	return nil, &b
-}
-
-type MemeHandler struct {
-}
-
-var memeHandlerInfo = CommandInfo{
-	Command:     "meme",
-	Args:        `(.+) ["'](.*?)["'] ["'](.*?)["']`,
-	Permission:  3,
-	Description: "makes a meme",
-	LongDesc:    "",
-	Usage:       `/meme [meme] "(top text)" "(bottom text)"`,
-	Examples: []string{
-		`/meme success "uses /meme for the first time" "it works"`,
-	},
-	ResType: "photo",
-}
-
-func (h MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
-	var errMsg tgbotapi.MessageConfig
-
-	defer func(bot *tgbotapi.BotAPI) {
-		if errMsg.Text != "" {
-			bot.Send(errMsg)
-		}
-	}(bot)
-
-	memeFn := "./resources/meme-tmpl/" + args[0] + ".jpg"
-
-	if _, err := os.Stat(memeFn); os.IsNotExist(err) {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-
-	imgFileBytes, err := ioutil.ReadFile(memeFn)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-
-	}
-
-	err, memeImg := makeMeme(imgFileBytes, args[1], args[2])
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-
-	}
-
-	file := tgbotapi.FileBytes{
-		Bytes: memeImg.Bytes(),
-		Name:  "meme.jpg",
-	}
-
-	msg := tgbotapi.NewPhotoUpload(message.Chat.ID, file)
-
-	_, err = bot.Send(msg)
-	if err != nil {
-		errMsg = NewErrorMessage(message.Chat.ID, err)
-		return
-	}
-}
-
-func (h MemeHandler) Info() *CommandInfo {
-	return &memeHandlerInfo
-}
-
-func (h MemeHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
-	return false, ""
 }

@@ -47,5 +47,8 @@ func (h RektHandler) Info() *CommandInfo {
 }
 
 func (h RektHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
-	return true, message.ReplyToMessage.From.String()
+	if message.CommandArguments() != "" {
+		return true, message.ReplyToMessage.From.String()
+	}
+	return false, ""
 }

@@ -21,7 +21,7 @@ var catHandlerInfo = CommandInfo{
 	Examples: []string{
 		"/cat",
 	},
-	ResType: "message",
+	ResType: "photo",
 }
 
 func (h CatHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {

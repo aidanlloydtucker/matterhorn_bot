@@ -1,6 +1,8 @@
 package commands
 
-import "gopkg.in/telegram-bot-api.v4"
+import (
+	"gopkg.in/telegram-bot-api.v4"
+)
 
 type ShameHandler struct {
 }
@@ -15,7 +17,7 @@ var shameHandlerInfo = CommandInfo{
 	Examples: []string{
 		"/shame",
 	},
-	ResType: "message",
+	ResType: "voice",
 }
 
 var shameFileID string
@@ -28,8 +30,8 @@ func (h ShameHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 	} else {
 		msg = tgbotapi.NewVoiceUpload(message.Chat.ID, "./resources/shame_sfx.mp3")
 	}
-	retMsg, _ := bot.Send(msg)
-	if retMsg.Voice.FileID != "" {
+	retMsg, err := bot.Send(msg)
+	if err == nil && retMsg.Voice.FileID != "" {
 		shameFileID = retMsg.Voice.FileID
 	}
 

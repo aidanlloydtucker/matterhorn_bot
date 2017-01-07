@@ -23,7 +23,10 @@ func (h SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 	var sendStr string
 
 	for i := 0; i < len(word); i++ {
-		sendStr += word[i:] + word[:i] + "\n"
+		sendStr += word[i:] + word[:i]
+		if i != len(word)-1 {
+			sendStr += "\n"
+		}
 	}
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, sendStr)

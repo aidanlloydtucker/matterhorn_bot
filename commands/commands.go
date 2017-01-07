@@ -1,9 +1,8 @@
 package commands
 
 import (
-	"regexp"
-
 	"math/rand"
+	"regexp"
 	"time"
 
 	"gopkg.in/telegram-bot-api.v4"
@@ -19,6 +18,7 @@ type CommandInfo struct {
 	Usage       string
 	Examples    []string
 	ResType     string
+	Hidden      bool
 }
 
 type Command interface {
@@ -29,4 +29,17 @@ type Command interface {
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
+}
+
+func NewErrorMessage(chatID int64, err error) tgbotapi.MessageConfig {
+	return tgbotapi.NewMessage(chatID, "Error! "+err.Error())
+}
+
+func GetUserTitle(user *tgbotapi.User) string {
+	name := user.FirstName
+	if user.LastName != "" {
+		name += " " + user.LastName
+	}
+
+	return name
 }

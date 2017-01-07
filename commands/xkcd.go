@@ -10,7 +10,7 @@ import (
 
 	"encoding/json"
 
-	"time"
+	"log"
 
 	"gopkg.in/telegram-bot-api.v4"
 )
@@ -24,7 +24,7 @@ var xkcdHandlerInfo = CommandInfo{
 	Permission:  3,
 	Description: "gets xkcd",
 	LongDesc:    "",
-	Usage:       "/xkcd ('new' or a number)",
+	Usage:       "/xkcd ('new', 'latest', or the id)",
 	Examples: []string{
 		"/xkcd",
 		"/xkcd new",
@@ -33,29 +33,39 @@ var xkcdHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
+func init() {
+	// Get latest XKCD
+	post, err := GetXKCD(0)
+	if err != nil {
+		log.Println("Could not get latest XKCD:", err)
+	} else {
+		xkcdLatestID = post.ID
+	}
+}
+
 func (h XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
-	var xkcdId int
+	var xkcdID int
 
 	if len(args) == 0 || args[0] == "" {
-		xkcdId = -1
-	} else if args[0] == "new" {
-		xkcdId = 0
+		xkcdID = -1
+	} else if args[0] == "new" || args[0] == "latest" {
+		xkcdID = 0
 	} else {
 		conv, err := strconv.Atoi(args[0])
 		if err != nil {
-			xkcdId = 0
+			xkcdID = 0
 		} else {
-			xkcdId = conv
+			xkcdID = conv
 		}
 	}
 
-	err, xkcd := GetXkcd(xkcdId)
+	post, err := GetXKCD(xkcdID)
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
-		msg = tgbotapi.NewMessage(message.Chat.ID, "<b>"+xkcd.Title+"</b>\n───\n<i>"+xkcd.Alt+"</i>\n"+xkcd.Img)
+		msg = tgbotapi.NewMessage(message.Chat.ID, "<b>"+post.Title+"</b>\n───\n<i>"+post.Alt+"</i>\n"+post.Img)
 		msg.ParseMode = "HTML"
 	}
 
@@ -70,29 +80,28 @@ func (h XkcdHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
 }
 
-type XkcdPost struct {
-	Title string
-	Alt   string
-	Img   string
-	Id    int
+type XKCDPost struct {
+	Title string `json:"title"`
+	Alt   string `json:"alt"`
+	Img   string `json:"img"`
+	ID    int    `json:"num"`
 }
 
-var xkcdLatestId int
+var xkcdLatestID int
 
-func GetXkcd(id int) (error, XkcdPost) {
+func GetXKCD(id int) (*XKCDPost, error) {
 	xkcdStr := "http://xkcd.com/"
 
 	if id != 0 {
 		if id == -1 {
-			if xkcdLatestId == 0 {
-				err, post := GetXkcd(0)
+			if xkcdLatestID == 0 {
+				post, err := GetXKCD(0)
 				if err != nil {
-					return err, XkcdPost{}
+					return nil, err
 				}
-				xkcdLatestId = post.Id
+				xkcdLatestID = post.ID
 			}
-			rand.Seed(time.Now().UTC().UnixNano())
-			id = rand.Intn(xkcdLatestId-1) + 1
+			id = rand.Intn(xkcdLatestID-1) + 1
 		}
 		xkcdStr += strconv.Itoa(id) + "/"
 	}
@@ -101,29 +110,19 @@ func GetXkcd(id int) (error, XkcdPost) {
 
 	resp, err := http.Get(xkcdStr)
 	if err != nil {
-		return err, XkcdPost{}
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("Invalid Status Code: " + resp.Status), XkcdPost{}
+		return nil, errors.New("Invalid Status Code: " + resp.Status)
 	}
 
-	var jsonRes map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&jsonRes)
+	post := XKCDPost{}
+	err = json.NewDecoder(resp.Body).Decode(&post)
 	if err != nil {
-		return err, XkcdPost{}
+		return nil, err
 	}
 
-	var xkcdId = int(jsonRes["num"].(float64))
-	if xkcdId > xkcdLatestId {
-		xkcdLatestId = xkcdId
-	}
-
-	return nil, XkcdPost{
-		Title: jsonRes["title"].(string),
-		Alt:   jsonRes["alt"].(string),
-		Img:   jsonRes["img"].(string),
-		Id:    xkcdId,
-	}
+	return &post, nil
 
 }

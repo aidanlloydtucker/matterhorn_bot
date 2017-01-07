@@ -1,20 +1,21 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
-	"regexp"
-	"bufio"
-	"os"
-	"fmt"
 	"gopkg.in/telegram-bot-api.v4"
-	"time"
-	"net/http"
-	"bytes"
-	"net/url"
-	"strconv"
-	"errors"
-	"strings"
 )
 
 var CommandHandlers []commands.Command
@@ -64,7 +65,6 @@ func main() {
 	// Help Command Setup
 	commands.CommandMap = cmdMap
 
-
 	// ACTUAL
 
 	reader := bufio.NewReader(os.Stdin)
@@ -79,7 +79,6 @@ func main() {
 		msg := newInputMessage(text)
 
 		commandSent := false
-
 
 		for _, cmd := range CommandHandlers {
 			if cmd.Info().Command == msg.Command() {
@@ -107,7 +106,7 @@ func main() {
 		}
 		if commandSent {
 			out := <-botOut
-			fmt.Println(strings.TrimSpace(out.Text)+"\n")
+			fmt.Println(strings.TrimSpace(out.Text) + "\n")
 		} else {
 			fmt.Println("Unknown Command")
 		}
@@ -174,7 +173,6 @@ func valsToMessageConfig(vals url.Values) tgbotapi.MessageConfig {
 	}
 	return msgConf
 }
-
 
 func newTestBot() (*tgbotapi.BotAPI, chan tgbotapi.MessageConfig) {
 	output := make(chan tgbotapi.MessageConfig, 1)

@@ -4,8 +4,9 @@ package main
 // go run tools/gen_cmd_list/main.go --out command_list.go
 
 import (
-	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 	"regexp"
+
+	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 )
 
 var CommandHandlers []commands.Command

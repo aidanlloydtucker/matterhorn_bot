@@ -22,6 +22,11 @@ var lennyHandlerInfo = CommandInfo{
 
 func (h LennyHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "( ͡° ͜ʖ ͡°)")
+	if message.ReplyToMessage != nil {
+		msg.ReplyToMessageID = message.ReplyToMessage.MessageID
+	} else {
+		msg.ReplyToMessageID = message.MessageID
+	}
 	bot.Send(msg)
 }
 

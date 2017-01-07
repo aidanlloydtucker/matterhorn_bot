@@ -8,7 +8,7 @@ import (
 
 	"strings"
 
-	"strconv"
+	"fmt"
 
 	"gopkg.in/telegram-bot-api.v4"
 )
@@ -24,9 +24,9 @@ var redditHandlerInfo = CommandInfo{
 	LongDesc:    "",
 	Usage:       "/reddit [subreddit] (sort)",
 	Examples: []string{
-		"/reddit funny",
+		"/reddit all",
 		"/reddit pics top/all",
-		"/reddit golang new",
+		"/reddit funny new",
 	},
 	ResType: "message",
 }
@@ -47,11 +47,14 @@ func (h RedditHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 		query = "?sort=" + url.QueryEscape(sort) + "&t=" + url.QueryEscape(split[1])
 	}
 
-	err, post := GetReddit(bot.Self.String(), args[0], sort, query)
+	post, err := GetReddit(bot.Self.String(), args[0], sort, query)
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
-		msg = tgbotapi.NewMessage(message.Chat.ID, "<b>"+post.Title+"</b> - "+post.Score+" points\n───\n"+post.URL+"")
+		msg = tgbotapi.NewMessage(message.Chat.ID,
+			fmt.Sprintf("<b>%s</b> - %d points\n──\n%s",
+				post.Title, post.Score, post.URL))
+
 		msg.ParseMode = "HTML"
 	}
 	bot.Send(msg)
@@ -66,54 +69,56 @@ func (h RedditHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 }
 
 type RedditPost struct {
-	Title string
-	Score string
-	URL   string
+	Title    string `json:"title"`
+	Score    int    `json:"score"`
+	URL      string `json:"url"`
+	Over18   bool   `json:"over_18"`
+	Stickied bool   `json:"stickied"`
 }
 
-func GetReddit(botName string, subreddit string, sort string, query string) (error, RedditPost) {
-	req, err := http.NewRequest(http.MethodGet, "https://www.reddit.com/r/"+url.QueryEscape(subreddit)+"/"+url.QueryEscape(sort)+".json"+query, nil)
+type RedditResp struct {
+	Data struct {
+		Children []struct {
+			Data RedditPost `json:"data"`
+		} `json:"children"`
+	} `json:"data"`
+}
+
+func GetReddit(botName string, subreddit string, sort string, query string) (*RedditPost, error) {
+	req, err := http.NewRequest(http.MethodGet,
+		"https://www.reddit.com/r/"+url.QueryEscape(subreddit)+
+			"/"+url.QueryEscape(sort)+
+			".json"+query,
+		nil)
 	if err != nil {
-		return err, RedditPost{}
+		return nil, err
 	}
+
 	req.Header.Add("User-agent", botName+" 0.1")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err, RedditPost{}
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("Invalid Status Code: " + resp.Status), RedditPost{}
+		return nil, errors.New("Invalid Status Code: " + resp.Status)
 	}
 
-	var jsonRes map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&jsonRes)
+	redditResp := RedditResp{}
+	err = json.NewDecoder(resp.Body).Decode(&redditResp)
 	if err != nil {
-		return err, RedditPost{}
+		return nil, err
 	}
 
-	if len(jsonRes["data"].(map[string]interface{})) <= 0 {
-		return errors.New("Missing JSON Data"), RedditPost{}
-	}
-
-	postList := jsonRes["data"].(map[string]interface{})["children"].([]interface{})
-	if len(postList) <= 0 {
-		return errors.New("Missing Post"), RedditPost{}
-	}
-	for _, post := range postList {
-		postData := post.(map[string]interface{})["data"].(map[string]interface{})
-		if !postData["stickied"].(bool) {
-			return nil, RedditPost{
-				Title: postData["title"].(string),
-				Score: strconv.FormatFloat(postData["score"].(float64), 'f', 0, 64),
-				URL:   postData["url"].(string),
-			}
+	for _, post := range redditResp.Data.Children {
+		if !post.Data.Stickied {
+			return &post.Data, nil
 		}
 	}
 
-	return errors.New("Post not Found"), RedditPost{}
+	return nil, errors.New("Post not Found")
 
 }

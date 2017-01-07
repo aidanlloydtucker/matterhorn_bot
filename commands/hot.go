@@ -11,34 +11,12 @@ import (
 	"bytes"
 	"io"
 
-	"math"
-	"time"
-
 	"strconv"
 
 	"gopkg.in/telegram-bot-api.v4"
 )
 
 type HotHandler struct {
-}
-
-var HotCacheMap map[string]HotCache = make(map[string]HotCache)
-
-func init() {
-	go pruneHotCache()
-}
-
-func pruneHotCache() {
-	now := time.Now()
-	for fileID, hc := range HotCacheMap {
-		calcTime := hc.Time.Add(time.Minute * 30 * time.Duration(hc.Usage-1))
-		if now.UnixNano() >= calcTime.UnixNano() {
-			delete(HotCacheMap, fileID)
-		} else {
-			hc.Usage = int(math.Floor(float64(hc.Usage) / float64(2)))
-			HotCacheMap[fileID] = hc
-		}
-	}
 }
 
 var hotHandlerInfo = CommandInfo{
@@ -78,28 +56,10 @@ func (h HotHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messag
 
 	fileID := (*(message.Photo))[len((*(message.Photo)))-1].FileID
 
-	hc, ok := HotCacheMap[fileID]
-
-	var hot Hotness
-
-	if !ok {
-		newHot, err := getHotness(bot, fileID)
-		if err != nil {
-			errMsg = NewErrorMessage(message.Chat.ID, err)
-			return
-		}
-		newHc := HotCache{
-			Hotness: &newHot,
-			Usage:   1,
-			Time:    time.Now(),
-		}
-		HotCacheMap[fileID] = newHc
-		hot = newHot
-	} else {
-		hc.Usage++
-		hc.Time = time.Now()
-		HotCacheMap[fileID] = hc
-		hot = *hc.Hotness
+	hot, err := getHotness(bot, fileID)
+	if err != nil {
+		errMsg = NewErrorMessage(message.Chat.ID, err)
+		return
 	}
 
 	if !hot.Success {
@@ -125,12 +85,6 @@ func (h HotHandler) Info() *CommandInfo {
 
 func (h HotHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return true, ""
-}
-
-type HotCache struct {
-	Hotness *Hotness
-	Usage   int
-	Time    time.Time
 }
 
 type Hotness struct {

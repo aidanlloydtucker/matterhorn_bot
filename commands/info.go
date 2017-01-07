@@ -30,9 +30,13 @@ func (h InfoHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messa
 		biT = BotInfoTimestamp.String()
 	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Bot Version: "+BotInfoVersion+"\n"+
+	msg := tgbotapi.NewMessage(message.Chat.ID, "<b>"+GetUserTitle(&bot.Self)+"</b>\n"+
+		"Bot Version: "+BotInfoVersion+"\n"+
 		"Build Timestamp: "+biT+"\n"+
-		"The github repo is: https://github.com/billybobjoeaglt/matterhorn_bot")
+		"Github Repo: https://github.com/billybobjoeaglt/matterhorn_bot")
+	msg.DisableWebPagePreview = true
+	msg.ParseMode = "HTML"
+
 	bot.Send(msg)
 }
 

@@ -1,20 +1,21 @@
 package main
 
 import (
+	"bytes"
+	"errors"
+	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
-	"go/ast"
 	"os"
 	"strings"
 	"text/template"
+
 	"github.com/urfave/cli"
-	"errors"
-	"bytes"
-	"go/format"
 )
 
 type Handler struct {
-	Name string
+	Name    string
 	Package string
 }
 
@@ -31,12 +32,12 @@ func main() {
 			Value: "command_list.go",
 		},
 		cli.StringSliceFlag{
-			Name: "dir, d",
+			Name:  "dir, d",
 			Usage: "Directories that are parsed",
 			Value: &cli.StringSlice{"commands"},
 		},
 		cli.StringSliceFlag{
-			Name: "package, p",
+			Name:  "package, p",
 			Usage: "Packages to import in the file",
 		},
 	}
@@ -84,7 +85,7 @@ func runApp(c *cli.Context) error {
 						}
 						if strings.HasSuffix(strings.ToLower(sp.Name.String()), "handler") {
 							handlers = append(handlers, Handler{
-								Name: sp.Name.String(),
+								Name:    sp.Name.String(),
 								Package: pkg.Name,
 							})
 						}
@@ -101,13 +102,13 @@ func runApp(c *cli.Context) error {
 
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, struct {
-		Packages     []string
+		Packages []string
 		Handlers []Handler
-		Args string
+		Args     string
 	}{
-		Packages:     c.StringSlice("packages"),
+		Packages: c.StringSlice("packages"),
 		Handlers: handlers,
-		Args: strings.Join(os.Args[1:], " "),
+		Args:     strings.Join(os.Args[1:], " "),
 	})
 	if err != nil {
 		return err
@@ -128,6 +129,6 @@ func runApp(c *cli.Context) error {
 	return err
 }
 
-func filterGoFiles(fi os.FileInfo) bool{
+func filterGoFiles(fi os.FileInfo) bool {
 	return !strings.HasSuffix(fi.Name(), "_test.go")
 }

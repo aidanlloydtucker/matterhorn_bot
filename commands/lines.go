@@ -26,8 +26,11 @@ func (h LinesHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 	word := args[0]
 	word = strings.ToUpper(word)
 	var sendStr string
-	for _, char := range word {
-		sendStr += string(char) + " "
+	for i, char := range word {
+		sendStr += string(char)
+		if i != len(word)-1 {
+			sendStr += " "
+		}
 	}
 	for _, char := range word[1:] {
 		sendStr += "\n" + string(char)

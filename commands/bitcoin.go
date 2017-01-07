@@ -35,7 +35,7 @@ func (h BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Me
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
-		msg = tgbotapi.NewMessage(message.Chat.ID, "Bitcoin most recent price: $"+price)
+		msg = tgbotapi.NewMessage(message.Chat.ID, "Bitcoin's most recent price is $"+price)
 	}
 	bot.Send(msg)
 }
@@ -59,12 +59,18 @@ func GetBitcoin() (error, string) {
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("Invalid Status Code: " + resp.Status), ""
 	}
-	var jsonRes map[string]interface{}
+	var jsonRes = struct {
+		USD struct {
+			Averages struct {
+				Last float64 `json:"last"`
+			} `json:"averages"`
+		} `json:"USD"`
+	}{}
 	err = json.NewDecoder(resp.Body).Decode(&jsonRes)
 	if err != nil {
 		return err, ""
 	}
-	price := strconv.FormatFloat(jsonRes["USD"].(map[string]interface{})["averages"].(map[string]interface{})["last"].(float64), 'f', 2, 64)
+	price := strconv.FormatFloat(jsonRes.USD.Averages.Last, 'f', 2, 64)
 	if price == "" {
 		return errors.New("Missing Price"), ""
 	}

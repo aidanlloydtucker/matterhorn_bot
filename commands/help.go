@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"gopkg.in/telegram-bot-api.v4"
 	"errors"
 	"fmt"
+
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 type HelpHandler struct {
@@ -45,6 +46,9 @@ func (h HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messa
 func listCommands() string {
 	msgStr := "<b>Commands:</b>\n"
 	for _, cmd := range CommandMap {
+		if cmd.Hidden {
+			continue
+		}
 		msgStr += "• " + cmd.Command + " - " + cmd.Description + "\n"
 	}
 	return msgStr
