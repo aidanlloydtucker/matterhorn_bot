@@ -1,0 +1,4 @@
+package custom
+
+func LoadCustom() {
+}
