@@ -1,14 +1,15 @@
 FROM golang:1.7
 
-ARG version
-
 RUN apt-get -y update && apt-get install -y fortunes
 
 COPY . /go/src/github.com/billybobjoeaglt/matterhorn_bot/
 WORKDIR /go/src/github.com/billybobjoeaglt/matterhorn_bot/
-RUN make build VERSION=$version
+
+ARG version
+
+RUN go build -ldflags "-X main.Version=$version -X main.BuildTime=`date +%s`"
 
 EXPOSE 8080 8080
 
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["/bin/bash"]
+ENTRYPOINT ["/go/src/github.com/billybobjoeaglt/matterhorn_bot/matterhorn_bot"]
+CMD ["--help"]

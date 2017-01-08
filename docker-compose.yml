@@ -9,7 +9,7 @@ services:
          - "8080:8080"
     depends_on:
      - redis
-    entrypoint: /go/src/github.com/billybobjoeaglt/matterhorn_bot/matterhorn_bot -redis_address=redis:6379 -http_port=8080 ${PROGRAM_ARGS}
+    command: -redis_address=redis:6379 -http_port=8080 ${PROGRAM_ARGS}
   redis:
     image: redis
     command: redis-server --appendonly yes
