@@ -1,6 +1,7 @@
 # Matterhorn Bot
 
 This is a multi-use telegram bot written in Go.
+[![Build Status](https://travis-ci.org/billybobjoeaglt/matterhorn_bot.svg?branch=master)](https://travis-ci.org/billybobjoeaglt/matterhorn_bot)
 
 ## Generate Webhook Certs
 
