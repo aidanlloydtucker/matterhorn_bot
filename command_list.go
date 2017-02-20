@@ -1,44 +1,44 @@
 package main
 
 // GENERATED FILE DO NOT EDIT
-// go run tools/gen_cmd_list/main.go --out command_list.go
+// go run tools/gen_cmd_list/main.go -out command_list.go
 
 import (
-	"regexp"
-
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
+	"regexp"
 )
 
 var CommandHandlers []commands.Command
 
 func LoadCommands() {
-	addCommand(commands.MagicBallHandler{})
-	addCommand(commands.BashHandler{})
-	addCommand(commands.CatHandler{})
-	addCommand(commands.ShameHandler{})
 	addCommand(commands.EchoHandler{})
-	addCommand(commands.MemeListHandler{})
-	addCommand(commands.SquareHandler{})
-	addCommand(commands.HotHandler{})
-	addCommand(commands.PingHandler{})
-	addCommand(commands.RedditHandler{})
-	addCommand(commands.StartHandler{})
-	addCommand(commands.InfoHandler{})
-	addCommand(commands.SettingsHandler{})
-	addCommand(commands.XkcdHandler{})
-	addCommand(commands.BatmanHandler{})
-	addCommand(commands.LennyHandler{})
-	addCommand(commands.LmgtfyHandler{})
-	addCommand(commands.MemeHandler{})
-	addCommand(commands.RandomHandler{})
-	addCommand(commands.UrbanHandler{})
-	addCommand(commands.BenchHandler{})
-	addCommand(commands.BitcoinHandler{})
-	addCommand(commands.ClearHandler{})
-	addCommand(commands.HelpHandler{})
-	addCommand(commands.BotFatherHandler{})
-	addCommand(commands.FortuneHandler{})
 	addCommand(commands.LinesHandler{})
+	addCommand(commands.BenchHandler{})
+	addCommand(commands.CatHandler{})
+	addCommand(commands.FortuneHandler{})
+	addCommand(commands.LmgtfyHandler{})
+	addCommand(commands.SettingsHandler{})
+	addCommand(commands.BatmanHandler{})
+	addCommand(commands.BotFatherHandler{})
+	addCommand(commands.ClearHandler{})
+	addCommand(commands.InfoHandler{})
+	addCommand(commands.RandomHandler{})
+	addCommand(commands.SquareHandler{})
+	addCommand(commands.UrbanHandler{})
+	addCommand(commands.BitcoinHandler{})
+	addCommand(commands.BashHandler{})
+	addCommand(commands.LennyHandler{})
+	addCommand(commands.PingHandler{})
+	addCommand(commands.ShameHandler{})
+	addCommand(commands.VisionHandler{})
+	addCommand(commands.MagicBallHandler{})
+	addCommand(commands.MemeListHandler{})
+	addCommand(commands.StartHandler{})
+	addCommand(commands.HotHandler{})
+	addCommand(commands.MemeHandler{})
+	addCommand(commands.XkcdHandler{})
+	addCommand(commands.HelpHandler{})
+	addCommand(commands.RedditHandler{})
 	addCommand(commands.RektHandler{})
 
 }
