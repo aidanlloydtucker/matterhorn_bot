@@ -3,8 +3,20 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "1TvufkYTMOYnB/ehKjekN5XTb+E=",
+			"path": "cloud.google.com/go/internal/version",
+			"revision": "0b87d14d90086b53a97dfbd66f3000f7f112b494",
+			"revisionTime": "2017-02-16T01:11:53Z"
+		},
+		{
 			"checksumSHA1": "vXA1gXcLRn+gfW8ne9U2fVs4iH8=",
 			"path": "cloud.google.com/go/vision",
+			"revision": "0b87d14d90086b53a97dfbd66f3000f7f112b494",
+			"revisionTime": "2017-02-16T01:11:53Z"
+		},
+		{
+			"checksumSHA1": "JpRcxO/tmnoHh8oyD3zF3FOwH3A=",
+			"path": "cloud.google.com/go/vision/apiv1",
 			"revision": "0b87d14d90086b53a97dfbd66f3000f7f112b494",
 			"revisionTime": "2017-02-16T01:11:53Z"
 		},
@@ -79,6 +91,12 @@
 			"path": "github.com/golang/freetype/truetype",
 			"revision": "38b4c392adc5eed94207994c4848fff99f4ac234",
 			"revisionTime": "2016-06-26T06:51:47Z"
+		},
+		{
+			"checksumSHA1": "CqqJGR84Ohab8ILmkrdZJCkDVJA=",
+			"path": "github.com/golang/geo/r3",
+			"revision": "f819552e7195873dbc628554929703291cecbea0",
+			"revisionTime": "2017-01-12T02:09:00Z"
 		},
 		{
 			"checksumSHA1": "MmQYoOadcQ5goARLjCqlSTAT03Y=",
@@ -157,6 +175,42 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "20457ee8ea8546920d3f4e19e405da45250dc5a5",
 			"revisionTime": "2016-01-20T16:03:39Z"
+		},
+		{
+			"checksumSHA1": "hZ9zds+/FPwSGEiti5lGaZL3e6w=",
+			"path": "google.golang.org/api/option",
+			"revision": "bc20c61134e1d25265dd60049f5735381e79b631",
+			"revisionTime": "2017-02-10T21:56:36Z"
+		},
+		{
+			"checksumSHA1": "gtKxHHML1sK6K21W3DlP1laXnOQ=",
+			"path": "google.golang.org/genproto/googleapis/cloud/vision/v1",
+			"revision": "dee11a626cb8e7ff045ac9413dcd8a92e72f5863",
+			"revisionTime": "2017-02-14T17:06:13Z"
+		},
+		{
+			"checksumSHA1": "39BP7L9AbzkRfe+WdfqwdKYBsOU=",
+			"path": "google.golang.org/genproto/googleapis/type/color",
+			"revision": "dee11a626cb8e7ff045ac9413dcd8a92e72f5863",
+			"revisionTime": "2017-02-14T17:06:13Z"
+		},
+		{
+			"checksumSHA1": "fVdbHWr7D8bM1GeorjV8Yfab1Cs=",
+			"path": "google.golang.org/genproto/googleapis/type/latlng",
+			"revision": "dee11a626cb8e7ff045ac9413dcd8a92e72f5863",
+			"revisionTime": "2017-02-14T17:06:13Z"
+		},
+		{
+			"checksumSHA1": "8Z43m+zNTbxHUHQPMUNirEp1BLg=",
+			"path": "google.golang.org/grpc",
+			"revision": "d0c32ee6a441117d49856d6120ca9552af413ee0",
+			"revisionTime": "2017-02-16T00:36:43Z"
+		},
+		{
+			"checksumSHA1": "08icuA15HRkdYCt6H+Cs90RPQsY=",
+			"path": "google.golang.org/grpc/codes",
+			"revision": "d0c32ee6a441117d49856d6120ca9552af413ee0",
+			"revisionTime": "2017-02-16T00:36:43Z"
 		},
 		{
 			"checksumSHA1": "5NDU2YJokde30yQDaobw8oV9Yys=",
