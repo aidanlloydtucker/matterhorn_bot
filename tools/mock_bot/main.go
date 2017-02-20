@@ -76,6 +76,31 @@ func main() {
 			panic(err)
 		}
 
+		metaCommandArgsMap := map[string]string{}
+
+		// [PHOTO="path/to/photo" REPLY="hello world"]
+		if strings.HasPrefix(text, "[") {
+			var inner string
+			var commandText string
+
+			_, err = fmt.Sscanf(text, "[%s] %s", &inner, &commandText)
+			if err != nil {
+				panic(err)
+			}
+
+			text = commandText
+
+
+
+			argsSlice := strings.Split(inner, `"`)
+			for i, arg := range argsSlice {
+				arg = strings.TrimSpace(arg)
+				if i%2 == 0 && len(argsSlice) > i+1 {
+					metaCommandArgsMap[arg] = strings.TrimSpace(argsSlice[i+1])
+				}
+			}
+		}
+
 		msg := newInputMessage(text)
 
 		commandSent := false
