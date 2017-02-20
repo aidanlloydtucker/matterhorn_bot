@@ -82,6 +82,10 @@ func main() {
 			Usage: "The address of the redis server",
 			Value: ":6379",
 		},
+		cli.StringFlag{
+			Name:  "service_account_file",
+			Usage: "The filepath of the google service account",
+		},
 	}
 
 	app.Version = Version
@@ -116,6 +120,8 @@ func runApp(c *cli.Context) error {
 
 	// Help Command Setup
 	commands.CommandMap = cmdMap
+
+	commands.ServiceAccountFilePath = c.String("service_account_file")
 
 	log.Println("Loaded all commands")
 

@@ -8,6 +8,7 @@ import (
 	"log"
 	"fmt"
 	"strings"
+	"google.golang.org/api/option"
 )
 
 type VisionHandler struct {
@@ -28,12 +29,13 @@ var visionHandlerInfo = CommandInfo{
 
 var visionClient *vision.Client
 var visionContext context.Context
+var ServiceAccountFilePath string
 
 func init() {
 	ctx := context.Background()
 
 	// Creates a client.
-	client, err := vision.NewClient(ctx)
+	client, err := vision.NewClient(ctx, option.WithServiceAccountFile(ServiceAccountFilePath))
 	if err != nil {
 		log.Printf("Failed to create client: %v", err)
 	} else {
