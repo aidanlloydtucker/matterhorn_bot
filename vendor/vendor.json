@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "vXA1gXcLRn+gfW8ne9U2fVs4iH8=",
+			"path": "cloud.google.com/go/vision",
+			"revision": "0b87d14d90086b53a97dfbd66f3000f7f112b494",
+			"revisionTime": "2017-02-16T01:11:53Z"
+		},
+		{
 			"checksumSHA1": "kNvIxjs3Hd0nopHlzwIQl2bA4OI=",
 			"path": "github.com/PuerkitoBio/goquery",
 			"revision": "2e29ea41f0d13f4a303c75553f4eeadddc7a4c56",
