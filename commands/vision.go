@@ -29,13 +29,12 @@ var visionHandlerInfo = CommandInfo{
 
 var visionClient *vision.Client
 var visionContext context.Context
-var ServiceAccountFilePath string
 
-func init() {
+func LoadVision(serviceAcctPath string) {
 	ctx := context.Background()
 
 	// Creates a client.
-	client, err := vision.NewClient(ctx, option.WithServiceAccountFile(ServiceAccountFilePath))
+	client, err := vision.NewClient(ctx, option.WithServiceAccountFile(serviceAcctPath))
 	if err != nil {
 		log.Printf("Failed to create client: %v", err)
 	} else {
@@ -79,7 +78,7 @@ func (h VisionHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 		labels[i] = "• " + label + "\n"
 	}
 
-	msg = tgbotapi.NewMessage(message.Chat.ID, "<b>Labels</b>" + strings.Join(labels, ""))
+	msg = tgbotapi.NewMessage(message.Chat.ID, "<b>Labels</b>\n" + strings.Join(labels, ""))
 	msg.ParseMode = "HTML"
 	msg.ReplyToMessageID = replyToMsg
 

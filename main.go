@@ -121,7 +121,8 @@ func runApp(c *cli.Context) error {
 	// Help Command Setup
 	commands.CommandMap = cmdMap
 
-	commands.ServiceAccountFilePath = c.String("service_account_file")
+
+	commands.LoadVision(c.String("service_account_file"))
 
 	log.Println("Loaded all commands")
 
