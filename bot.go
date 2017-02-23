@@ -69,6 +69,10 @@ func startBot(token string, webhookConf *WebhookConfig) {
 			continue
 		}
 
+		if update.Message.Caption != "" && update.Message.Text == "" {
+			update.Message.Text = update.Message.Caption
+		}
+
 		log.Printf("[%s] %s", update.Message.From.String(), update.Message.Text)
 
 		go onMessageRedisRoutine(bot, update)
