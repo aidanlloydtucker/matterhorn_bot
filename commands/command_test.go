@@ -430,11 +430,6 @@ func TestHelpHandler_HandleCommand_DetailedInfo(t *testing.T) {
 	}
 }
 
-// File: hot.go
-// XXX: I am skipping this test because I do not know how to test it when it makes other API calls and also depends on a
-// separate, possibly changing, program for an answer
-// TODO: Figure out a way to have a hot command test
-
 // File: info.go
 // Checks to make sure that the message is valid
 func TestInfoHandler_HandleCommand(t *testing.T) {
