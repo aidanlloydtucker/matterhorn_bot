@@ -6,9 +6,6 @@ import (
 	"log"
 	"strconv"
 
-	"errors"
-
-	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/yosssi/ace"
@@ -51,16 +48,15 @@ func webChatHandler(c *gin.Context) {
 		return
 	}
 
-	rc := redisPool.Get()
-	defer rc.Close()
-
-	ciPtr, httpCode, err := getRedisChatInfo(rc, chatID)
-	if err != nil || httpCode != http.StatusOK || ciPtr == nil {
-		c.AbortWithError(httpCode, err)
+	chat, exists, err := getDatastoreChat(chatID)
+	if err != nil {
+		if !exists {
+			c.AbortWithError(http.StatusNotFound, err)
+		} else {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
 		return
 	}
-
-	ci := *ciPtr
 
 	tpl, err := p.Load("base", "chat", nil)
 	if err != nil {
@@ -69,13 +65,13 @@ func webChatHandler(c *gin.Context) {
 	}
 
 	data := map[string]interface{}{
-		"ChatName": ci.Name,
+		"ChatName": chat.Name,
 		"ChatId":   chatID,
 		"SettingsBool": map[string]interface{}{
-			"NSFW": ci.Settings.NSFW,
+			"NSFW": chat.Settings.NSFW,
 		},
-		"KeyWords":   ci.Settings.KeyWords,
-		"AlertTimes": ci.Settings.AlertTimes,
+		"KeyWords":   chat.Settings.KeyWords,
+		"AlertTimes": chat.Settings.AlertTimes,
 	}
 
 	c.Header("Content-Type", "text/HTML")
@@ -86,6 +82,14 @@ func webChatHandler(c *gin.Context) {
 	}
 }
 
+type ChangedChatSettings struct {
+	NSFW          bool         `json:"nsfw"`
+	NewAlertTimes []AlertTime  `json:"new_alert_times"`
+	AlertTimes    map[int]bool `json:"alert_times"`
+	NewKeyWords   []KeyWord    `json:"new_key_words"`
+	KeyWords      map[int]bool `json:"key_words"`
+}
+
 func webChatChangeHandler(c *gin.Context) {
 	chatIdStr := c.Param("id")
 	chatID, err := strconv.ParseInt(chatIdStr, 10, 64)
@@ -94,86 +98,65 @@ func webChatChangeHandler(c *gin.Context) {
 		return
 	}
 
-	rc := redisPool.Get()
-	defer rc.Close()
-
-	ciPtr, httpCode, err := getRedisChatInfo(rc, chatID)
-	if err != nil || httpCode != http.StatusOK || ciPtr == nil {
-		c.AbortWithError(httpCode, err)
+	_, exists, err := getDatastoreChat(chatID)
+	if err != nil {
+		if !exists {
+			c.AbortWithError(http.StatusNotFound, err)
+		} else {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
 		return
 	}
+	var changeSettings ChangedChatSettings
 
-	ci := *ciPtr
-
-	var settings ChatSettings
-
-	err = c.BindJSON(&settings)
+	err = c.BindJSON(&changeSettings)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	var newKWs []KeyWord
-
-	for _, kw := range settings.KeyWords {
-		if kw.Key == "" || kw.Message == "" || len(kw.Key) <= 2 {
-			continue
+	updateFunc := func(oldChat Chat) Chat {
+		newAT := []AlertTime{}
+		for _, at := range oldChat.Settings.AlertTimes {
+			if val, ok := changeSettings.AlertTimes[at.ID]; val || !ok {
+				newAT = append(newAT, at)
+			}
 		}
-		newKWs = append(newKWs, kw)
-	}
-
-	var newATs []AlertTime
-
-	for _, at := range settings.AlertTimes {
-		if at.Time == "" || at.Message == "" {
-			continue
+		for _, at := range changeSettings.NewAlertTimes {
+			if at.Time != "" && at.Message != "" {
+				newAT = append(newAT, MakeAlertTime(at.Time, at.Message))
+			}
 		}
-		newATs = append(newATs, at)
+
+		newKW := []KeyWord{}
+		for _, kw := range oldChat.Settings.KeyWords {
+			if val, ok := changeSettings.KeyWords[kw.ID]; val || !ok {
+				newKW = append(newKW, kw)
+			}
+		}
+		for _, kw := range changeSettings.NewKeyWords {
+			if len(kw.Key) > 2 && kw.Message != "" {
+				newKW = append(newKW, MakeKeyWord(kw.Key, kw.Message))
+			}
+		}
+
+		newChat := Chat{
+			Name: oldChat.Name,
+			Type: oldChat.Type,
+			Settings: ChatSettings{
+				NSFW:       changeSettings.NSFW,
+				AlertTimes: newAT,
+				KeyWords:   newKW,
+			},
+		}
+		return newChat
 	}
 
-	if len(newATs) > 10 {
-		c.AbortWithError(http.StatusBadRequest, errors.New("Too many alerts"))
-	}
-
-	insertTimersByChatID(newATs, chatID)
-
-	ci.Settings.KeyWords = newKWs
-	ci.Settings.AlertTimes = newATs
-	ci.Settings.NSFW = settings.NSFW
-
-	err = setRedisChatInfo(rc, ci, chatID)
+	chat, err := updateDatastoreChat(updateFunc, chatID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-}
 
-func getRedisChatInfo(rc redis.Conn, chatID int64) (*ChatInfo, int, error) {
-	exists, err := redis.Bool(rc.Do("EXISTS", formatRedisKey(chatID)))
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
-	}
-	if !exists {
-		return nil, http.StatusNotFound, errors.New("ChatId is not in database")
-	}
-
-	v, err := redis.String(rc.Do("GET", formatRedisKey(chatID)))
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
-	}
-
-	ci, err := DecodeRedisChatInfo(v)
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
-	}
-	return &ci, http.StatusOK, nil
-}
-
-func setRedisChatInfo(rc redis.Conn, ci ChatInfo, chatID int64) error {
-	ciStr, err := EncodeRedisChatInfo(ci)
-	if err != nil {
-		return err
-	}
-	_, err = rc.Do("SET", redis.Args{}.Add(formatRedisKey(chatID)).Add(ciStr)...)
-	return err
+	insertTimersByChatID(chat.Settings.AlertTimes, chatID)
 }

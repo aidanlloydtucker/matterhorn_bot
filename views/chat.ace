@@ -26,9 +26,9 @@
     {{range .KeyWords}}
       tr
         td
-          input.form-control type=text value={{.Key}}
+          input.form-control.watch-edit type=text value={{.Key}} data-id={{.ID}}
         td
-          input.form-control type=text value={{.Message}}
+          input.form-control.watch-edit type=text value={{.Message}}
     {{end}}
   button#add_keyword.btn.btn-sm Add Keyword
   br
@@ -40,9 +40,9 @@
     {{range .AlertTimes}}
       tr
         td
-          input.form-control type=text value={{.Time}} placeholder=HH:MM
+          input.form-control.watch-edit type=text value={{.Time}} placeholder=HH:MM data-id={{.ID}}
         td
-          input.form-control type=text value={{.Message}}
+          input.form-control.watch-edit type=text value={{.Message}}
     {{end}}
   button#add_alerttimes.btn.btn-sm Add Alert Time
   button#add_alerttime_now.btn.btn-info.btn-sm Add Now as an Alert

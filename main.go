@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"regexp"
 	"strconv"
 	"syscall"
 	"time"
@@ -13,10 +12,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"cloud.google.com/go/datastore"
+	"context"
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
 	"github.com/codegangsta/cli"
-	"github.com/garyburd/redigo/redis"
+	"google.golang.org/api/option"
 )
 
 // Build Vars
@@ -25,7 +26,8 @@ var (
 	BuildTime string
 )
 
-var redisPool *redis.Pool
+var datastoreClient *datastore.Client
+var datastoreContext context.Context
 
 var HttpPort string
 
@@ -78,13 +80,16 @@ func main() {
 			Usage: "Sets bot to production mode",
 		},
 		cli.StringFlag{
-			Name:  "redis_address, r",
-			Usage: "The address of the redis server",
-			Value: ":6379",
-		},
-		cli.StringFlag{
 			Name:  "service_account_file",
 			Usage: "The filepath of the google service account",
+		},
+		cli.StringFlag{
+			Name:  "project_id",
+			Usage: "The project ID for google cloud",
+		},
+		cli.StringFlag{
+			Name:  "set_version",
+			Usage: "Set the version of matterhorn bot",
 		},
 	}
 
@@ -102,6 +107,7 @@ func main() {
 }
 
 func runApp(c *cli.Context) error {
+	var err error
 	log.Println("Running app")
 
 	// Commands
@@ -121,28 +127,28 @@ func runApp(c *cli.Context) error {
 	// Help Command Setup
 	commands.CommandMap = cmdMap
 
+	if c.String("set_version") != "" {
+		commands.BotInfoVersion = c.String("set_version")
+	}
 
 	commands.LoadVision(c.String("service_account_file"))
 
 	log.Println("Loaded all commands")
 
-	// Connect to redis
-	redisPool = &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", c.String("redis_address"))
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			if time.Since(t) < time.Minute {
-				return nil
-			}
-			_, err := c.Do("PING")
-			return err
-		},
+	/* GOOGLE CLOUD DATASTORE */
+	datastoreContext = context.Background()
+
+	if !c.IsSet("project_id") {
+		log.Fatalln("Missing Project ID")
 	}
 
-	log.Println("Connected to Redis")
+	// Creates a client.
+	datastoreClient, err = datastore.NewClient(datastoreContext, c.String("project_id"), option.WithServiceAccountFile(c.String("service_account_file")))
+	if err != nil {
+		log.Fatalf("Failed to create datastore client: %v", err)
+	}
+
+	log.Println("Connected to datastore")
 
 	HttpPort = c.String("http_port")
 
@@ -203,18 +209,6 @@ func runApp(c *cli.Context) error {
 
 	log.Println("Safe Exit")
 	return nil
-}
-
-func AddCommand(cmd commands.Command) {
-	if cmd.Info().Args != "" {
-		argReg, err := regexp.Compile(cmd.Info().Args)
-		if err != nil {
-			return
-		}
-		cmd.Info().ArgsRegex = *argReg
-	}
-
-	CommandHandlers = append(CommandHandlers, cmd)
 }
 
 func checkIP() (string, error) {

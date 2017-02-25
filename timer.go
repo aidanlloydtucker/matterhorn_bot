@@ -1,13 +1,10 @@
 package main
 
 import (
-	"time"
-
-	"strconv"
-	"strings"
-
-	"github.com/garyburd/redigo/redis"
+	"cloud.google.com/go/datastore"
 	"gopkg.in/telegram-bot-api.v4"
+	"log"
+	"time"
 )
 
 const INTERVAL_PERIOD time.Duration = 24 * time.Hour
@@ -27,11 +24,13 @@ func startTimer(when time.Time, message string, chatID int64) *time.Timer {
 
 	go func() {
 		for {
-			<-timer.C
-			msg := tgbotapi.NewMessage(chatID, message)
-			mainBot.Send(msg)
+			if !timer.Stop() {
+				<-timer.C
+				msg := tgbotapi.NewMessage(chatID, message)
+				mainBot.Send(msg)
 
-			*timer = *(time.NewTimer(INTERVAL_PERIOD))
+				*timer = *(time.NewTimer(INTERVAL_PERIOD))
+			}
 		}
 	}()
 	return timer
@@ -60,31 +59,20 @@ func parseTimes(timeStr string) (time.Time, error) {
 }
 
 func initTimers() {
-	rc := redisPool.Get()
-	defer rc.Close()
-
-	chats, err := redis.Strings(rc.Do("KEYS", REDIS_KEY_PREFIX+"*"))
+	chats := []Chat{}
+	keys, err := datastoreClient.GetAll(datastoreContext, datastore.NewQuery(ChatKeyKind).Namespace(ChatKeyNamespace), &chats)
 	if err != nil {
+		log.Println("Get All Chats Failed:", err)
 		return
 	}
-	for _, chatKey := range chats {
-		v, err := redis.String(rc.Do("GET", chatKey))
-		if err != nil {
-			continue
-		}
 
-		chat, err := DecodeRedisChatInfo(v)
-		if err != nil {
-			continue
-		}
+	if len(keys) != len(chats) {
+		log.Printf("Mismatch between key length (%v) and chats length (%v)\n", len(keys), len(chats))
+		return
+	}
 
-		chatIdStr := strings.TrimPrefix(chatKey, REDIS_KEY_PREFIX)
-		chatId, err := strconv.ParseInt(chatIdStr, 10, 64)
-		if err != nil {
-			continue
-		}
-
-		insertTimersByChatID(chat.Settings.AlertTimes, chatId)
+	for i, chat := range chats {
+		insertTimersByChatID(chat.Settings.AlertTimes, keys[i].ID)
 	}
 }
 

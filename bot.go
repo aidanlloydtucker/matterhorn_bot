@@ -5,8 +5,6 @@ import (
 
 	"strings"
 
-	"strconv"
-
 	"net/http"
 
 	"gopkg.in/telegram-bot-api.v4"
@@ -75,7 +73,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 
 		log.Printf("[%s] %s", update.Message.From.String(), update.Message.Text)
 
-		go onMessageRedisRoutine(bot, update)
+		go onMessageRoutine(bot, update)
 
 		// FOR INLINE 8BALL COMMANDS. FIGURE OUT A BETTER, MORE MODULAR WAY TO DO THIS LATER
 		if update.Message.Text != "" && strings.Contains(update.Message.Text, "#8ball") {
@@ -111,21 +109,13 @@ func startBot(token string, webhookConf *WebhookConfig) {
 	}
 }
 
-const REDIS_KEY_PREFIX string = "tg-chat-key/"
-
-func formatRedisKey(key int64) string {
-	return REDIS_KEY_PREFIX + strconv.FormatInt(key, 10)
-}
-
-func onMessageRedisRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	rc := redisPool.Get()
-	defer rc.Close()
-
-	ciPtr, httpCode, err := getRedisChatInfo(rc, update.Message.Chat.ID)
-	if (err != nil || ciPtr == nil) && httpCode != http.StatusNotFound {
+func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+	chat, exists, err := getDatastoreChat(update.Message.Chat.ID)
+	if err != nil && exists {
+		log.Println("Error getting chat from datastore:", err)
 		return
-	} else if httpCode == http.StatusNotFound {
-		newChat := ChatInfo{}
+	} else if !exists {
+		newChat := Chat{}
 		if update.Message.Chat.Title == "" {
 			if update.Message.Chat.UserName != "" {
 				newChat.Name = update.Message.Chat.UserName
@@ -137,22 +127,31 @@ func onMessageRedisRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		}
 		newChat.Type = update.Message.Chat.Type
 
-		err = setRedisChatInfo(rc, newChat, update.Message.Chat.ID)
+		err = insertDatastoreChat(newChat, update.Message.Chat.ID)
 		if err != nil {
-			log.Println("Error setting redis chat info:", err)
+			log.Println("Error inserting chat:", err)
+		} else {
+			log.Printf("Successfully inserted chat %v (%v)\n", chat.Name, update.Message.Chat.ID)
 		}
+
 	} else {
-		ci := *ciPtr
 		if update.Message.Text != "" {
-			for _, word := range ci.Settings.KeyWords {
+			for _, word := range chat.Settings.KeyWords {
 				if strings.Contains(strings.ToLower(update.Message.Text), strings.ToLower(word.Key)) {
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, word.Message)
 					bot.Send(msg)
 				}
 			}
 		} else if update.Message.NewChatTitle != "" {
-			ci.Name = update.Message.NewChatTitle
-			setRedisChatInfo(rc, ci, update.Message.Chat.ID)
+			chat.Name = update.Message.NewChatTitle
+			_, err = updateDatastoreChat(func(oldChat Chat) Chat {
+				newChat := oldChat
+				newChat.Name = update.Message.NewChatTitle
+				return newChat
+			}, update.Message.Chat.ID)
+			if err != nil {
+				log.Println("Error updating chat:", err)
+			}
 		}
 	}
 }
