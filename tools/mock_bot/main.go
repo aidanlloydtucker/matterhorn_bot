@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
 	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
 	"gopkg.in/telegram-bot-api.v4"
+	"log"
 )
 
 func main() {
@@ -33,8 +33,35 @@ func main() {
 		cmdMap[cmd.Info().Command] = cmd.Info()
 	}
 
-	// Help Command Setup
-	commands.CommandMap = cmdMap
+	for _, cmd := range CommandHandlers {
+		switch cmd.(type) {
+		case *commands.InfoHandler:
+			nowTime := time.Now()
+			cmd.Setup(map[string]interface{}{
+				"botVersion":   "0.0.0_Mock_Bot",
+				"botTimestamp": &nowTime,
+			})
+		case *commands.HelpHandler:
+			cmd.Setup(map[string]interface{}{
+				"commandMap": cmdMap,
+			})
+		case *commands.BotFatherHandler:
+			cmd.Setup(map[string]interface{}{
+				"commandMap": cmdMap,
+			})
+		case *commands.VisionHandler:
+			cmd.Setup(map[string]interface{}{
+				"serviceAccountPath": "",
+			})
+		case *commands.SettingsHandler:
+			cmd.Setup(map[string]interface{}{
+				"url": "localhost/fake/",
+			})
+			log.Printf("called: %#v\n", cmd)
+		default:
+			cmd.Setup(map[string]interface{}{})
+		}
+	}
 
 	// ACTUAL
 
@@ -60,8 +87,6 @@ func main() {
 			}
 
 			text = commandText
-
-
 
 			argsSlice := strings.Split(inner, `"`)
 			for i, arg := range argsSlice {
@@ -126,18 +151,6 @@ func newInputMessage(text string) *tgbotapi.Message {
 		},
 		Text: text,
 	}
-}
-
-func AddCommand(cmd commands.Command) {
-	if cmd.Info().Args != "" {
-		argReg, err := regexp.Compile(cmd.Info().Args)
-		if err != nil {
-			return
-		}
-		cmd.Info().ArgsRegex = *argReg
-	}
-
-	CommandHandlers = append(CommandHandlers, cmd)
 }
 
 type RoundTTest struct {

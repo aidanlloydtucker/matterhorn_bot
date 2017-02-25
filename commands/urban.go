@@ -25,7 +25,7 @@ var urbanHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, def := GetUrban(args[0])
@@ -39,12 +39,16 @@ func (h UrbanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 	bot.Send(msg)
 }
 
-func (h UrbanHandler) Info() *CommandInfo {
+func (h *UrbanHandler) Info() *CommandInfo {
 	return &urbanHandlerInfo
 }
 
-func (h UrbanHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *UrbanHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *UrbanHandler) Setup(setupFields map[string]interface{}) {
+
 }
 
 type UrbanDefinition struct {

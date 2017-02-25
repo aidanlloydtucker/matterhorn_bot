@@ -5,6 +5,7 @@ import (
 )
 
 type BotFatherHandler struct {
+	commandMap map[string]*CommandInfo
 }
 
 var botFatherHandlerInfo = CommandInfo{
@@ -21,9 +22,9 @@ var botFatherHandlerInfo = CommandInfo{
 	Hidden:  true,
 }
 
-func (h BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msgStr string
-	for _, cmd := range CommandMap {
+	for _, cmd := range h.commandMap {
 		if cmd.Hidden {
 			continue
 		}
@@ -33,10 +34,24 @@ func (h BotFatherHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.
 	bot.Send(msg)
 }
 
-func (h BotFatherHandler) Info() *CommandInfo {
+func (h *BotFatherHandler) Info() *CommandInfo {
 	return &botFatherHandlerInfo
 }
 
-func (h BotFatherHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *BotFatherHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+/*
+Params:
+map[string]*CommandInfo commandMap (default: map[string]*CommandInfo{}) // Map of command infos for botfather to print out
+*/
+func (h *BotFatherHandler) Setup(setupFields map[string]interface{}) {
+	h.commandMap = map[string]*CommandInfo{}
+
+	if cmdMapVal, ok := setupFields["commandMap"]; ok {
+		if cmdMap, ok := cmdMapVal.(map[string]*CommandInfo); ok {
+			h.commandMap = cmdMap
+		}
+	}
 }

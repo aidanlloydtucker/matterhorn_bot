@@ -32,7 +32,7 @@ var randomHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h RandomHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *RandomHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var errMsg tgbotapi.MessageConfig
 
 	defer func(bot *tgbotapi.BotAPI) {
@@ -72,10 +72,14 @@ func (h RandomHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 	bot.Send(msg)
 }
 
-func (h RandomHandler) Info() *CommandInfo {
+func (h *RandomHandler) Info() *CommandInfo {
 	return &randomHandlerInfo
 }
 
-func (h RandomHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *RandomHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *RandomHandler) Setup(setupFields map[string]interface{}) {
+
 }

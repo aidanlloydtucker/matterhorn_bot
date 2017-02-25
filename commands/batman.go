@@ -22,15 +22,19 @@ var batmanHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *BatmanHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprint(GetUserTitle(message.From), " is Batman"))
 	bot.Send(msg)
 }
 
-func (h BatmanHandler) Info() *CommandInfo {
+func (h *BatmanHandler) Info() *CommandInfo {
 	return &batmanHandlerInfo
 }
 
-func (h BatmanHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *BatmanHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *BatmanHandler) Setup(setupFields map[string]interface{}) {
+
 }

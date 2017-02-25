@@ -22,7 +22,7 @@ var linesHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h LinesHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *LinesHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	word := args[0]
 	word = strings.ToUpper(word)
 	var sendStr string
@@ -39,10 +39,14 @@ func (h LinesHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 	bot.Send(msg)
 }
 
-func (h LinesHandler) Info() *CommandInfo {
+func (h *LinesHandler) Info() *CommandInfo {
 	return &linesHandlerInfo
 }
 
-func (h LinesHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *LinesHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *LinesHandler) Setup(setupFields map[string]interface{}) {
+
 }

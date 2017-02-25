@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"gopkg.in/telegram-bot-api.v4"
 	"encoding/json"
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 type MsgDumpHandler struct {
@@ -21,7 +21,7 @@ var msgDumpHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h MsgDumpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *MsgDumpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	jsonBytes, err := json.MarshalIndent(message, "", "	")
@@ -34,10 +34,14 @@ func (h MsgDumpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Me
 	bot.Send(msg)
 }
 
-func (h MsgDumpHandler) Info() *CommandInfo {
+func (h *MsgDumpHandler) Info() *CommandInfo {
 	return &msgDumpHandlerInfo
 }
 
-func (h MsgDumpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *MsgDumpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *MsgDumpHandler) Setup(setupFields map[string]interface{}) {
+
 }

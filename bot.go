@@ -76,8 +76,9 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		go onMessageRoutine(bot, update)
 
 		// FOR INLINE 8BALL COMMANDS. FIGURE OUT A BETTER, MORE MODULAR WAY TO DO THIS LATER
+		//TODO: Make this less jankey and make it support Setup()
 		if update.Message.Text != "" && strings.Contains(update.Message.Text, "#8ball") {
-			go mbCommands.MagicBallHandler{}.HandleCommand(bot, update.Message, []string{})
+			go (&mbCommands.MagicBallHandler{}).HandleCommand(bot, update.Message, []string{})
 		}
 		// ENDING THE 8BALL COMMAND SECTION
 

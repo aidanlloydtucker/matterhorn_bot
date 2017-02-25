@@ -13,7 +13,7 @@ import (
 var CommandHandlers []commands.Command
 
 func LoadCommands() {
-{{range .Handlers}}	addCommand({{.Package}}.{{.Name}}{})
+{{range .Handlers}}	addCommand(&{{.Package}}.{{.Name}}{})
 {{end}}
 }
 

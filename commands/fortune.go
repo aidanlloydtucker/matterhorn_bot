@@ -7,6 +7,7 @@ import (
 )
 
 type FortuneHandler struct {
+	path string
 }
 
 var fortuneHandlerInfo = CommandInfo{
@@ -22,10 +23,10 @@ var fortuneHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
-	err, fortune := GetFortune()
+	err, fortune := GetFortune(h.path)
 	if err != nil {
 		msg = NewErrorMessage(message.Chat.ID, err)
 	} else {
@@ -34,16 +35,30 @@ func (h FortuneHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Me
 	bot.Send(msg)
 }
 
-func (h FortuneHandler) Info() *CommandInfo {
+func (h *FortuneHandler) Info() *CommandInfo {
 	return &fortuneHandlerInfo
 }
 
-func (h FortuneHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *FortuneHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
 }
 
-func GetFortune() (error, string) {
-	fOut, err := exec.Command("/usr/games/fortune", "-a", "fortunes", "riddles").Output()
+/*
+Params:
+string path (default: /usr/games/fortune) // Path to fortune command
+*/
+func (h *FortuneHandler) Setup(setupFields map[string]interface{}) {
+	h.path = "/usr/games/fortune"
+
+	if val, ok := setupFields["path"]; ok {
+		if path, ok := val.(string); ok {
+			h.path = path
+		}
+	}
+}
+
+func GetFortune(path string) (error, string) {
+	fOut, err := exec.Command(path, "-a", "fortunes", "riddles").Output()
 	if err != nil {
 		return err, ""
 	}

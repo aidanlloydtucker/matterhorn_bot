@@ -18,7 +18,7 @@ var squareHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	word := args[0]
 	var sendStr string
 
@@ -33,10 +33,14 @@ func (h SquareHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 	bot.Send(msg)
 }
 
-func (h SquareHandler) Info() *CommandInfo {
+func (h *SquareHandler) Info() *CommandInfo {
 	return &squareHandlerInfo
 }
 
-func (h SquareHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *SquareHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *SquareHandler) Setup(setupFields map[string]interface{}) {
+
 }

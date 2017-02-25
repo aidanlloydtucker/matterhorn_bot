@@ -43,7 +43,7 @@ func init() {
 	}
 }
 
-func (h XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	var xkcdID int
@@ -72,12 +72,16 @@ func (h XkcdHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messa
 	bot.Send(msg)
 }
 
-func (h XkcdHandler) Info() *CommandInfo {
+func (h *XkcdHandler) Info() *CommandInfo {
 	return &xkcdHandlerInfo
 }
 
-func (h XkcdHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *XkcdHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *XkcdHandler) Setup(setupFields map[string]interface{}) {
+
 }
 
 type XKCDPost struct {

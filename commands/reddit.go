@@ -31,7 +31,7 @@ var redditHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h RedditHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *RedditHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	var sort string
@@ -60,12 +60,16 @@ func (h RedditHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mes
 	bot.Send(msg)
 }
 
-func (h RedditHandler) Info() *CommandInfo {
+func (h *RedditHandler) Info() *CommandInfo {
 	return &redditHandlerInfo
 }
 
-func (h RedditHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *RedditHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *RedditHandler) Setup(setupFields map[string]interface{}) {
+
 }
 
 type RedditPost struct {

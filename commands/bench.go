@@ -24,15 +24,19 @@ var benchHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *BenchHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, strconv.FormatInt(time.Now().UnixNano(), 10))
 	bot.Send(msg)
 }
 
-func (h BenchHandler) Info() *CommandInfo {
+func (h *BenchHandler) Info() *CommandInfo {
 	return &benchHandlerInfo
 }
 
-func (h BenchHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *BenchHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *BenchHandler) Setup(setupFields map[string]interface{}) {
+
 }
