@@ -25,6 +25,7 @@ type Command interface {
 	Info() *CommandInfo
 	HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string)
 	HandleReply(message *tgbotapi.Message) (bool, string)
+	Setup(setupFields map[string]interface{})
 }
 
 func init() {

@@ -28,7 +28,7 @@ var bitcoinHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.MessageConfig
 
 	err, price := GetBitcoin()
@@ -40,12 +40,16 @@ func (h BitcoinHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Me
 	bot.Send(msg)
 }
 
-func (h BitcoinHandler) Info() *CommandInfo {
+func (h *BitcoinHandler) Info() *CommandInfo {
 	return &bitcoinHandlerInfo
 }
 
-func (h BitcoinHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *BitcoinHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *BitcoinHandler) Setup(setupFields map[string]interface{}) {
+
 }
 
 func GetBitcoin() (error, string) {

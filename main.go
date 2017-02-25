@@ -94,12 +94,10 @@ func main() {
 	}
 
 	app.Version = Version
-	commands.BotInfoVersion = app.Version
 
 	num, err := strconv.ParseInt(BuildTime, 10, 64)
 	if err == nil {
 		app.Compiled = time.Unix(num, 0)
-		commands.BotInfoTimestamp = &app.Compiled
 	}
 
 	app.Action = runApp
@@ -109,6 +107,21 @@ func main() {
 func runApp(c *cli.Context) error {
 	var err error
 	log.Println("Running app")
+
+	HttpPort = c.String("http_port")
+
+	// Add URL for settings command
+	var settingsURL string
+	if c.IsSet("ip") {
+		settingsURL = c.String("ip") + ":" + c.String("http_port") + "/chat/"
+	} else {
+		IP, err := checkIP()
+		if err != nil {
+			settingsURL = "localhost:" + c.String("http_port") + "/chat/"
+		} else {
+			settingsURL = IP + ":" + c.String("http_port") + "/chat/"
+		}
+	}
 
 	// Commands
 	LoadCommands()
@@ -124,14 +137,37 @@ func runApp(c *cli.Context) error {
 		cmdMap[cmd.Info().Command] = cmd.Info()
 	}
 
-	// Help Command Setup
-	commands.CommandMap = cmdMap
-
-	if c.String("set_version") != "" {
-		commands.BotInfoVersion = c.String("set_version")
+	for _, cmd := range CommandHandlers {
+		switch cmd.(type) {
+		case *commands.InfoHandler:
+			newVersion := c.String("set_version")
+			if newVersion == "" {
+				newVersion = c.App.Version
+			}
+			cmd.Setup(map[string]interface{}{
+				"botVersion":   newVersion,
+				"botTimestamp": &c.App.Compiled,
+			})
+		case *commands.HelpHandler:
+			cmd.Setup(map[string]interface{}{
+				"commandMap": cmdMap,
+			})
+		case *commands.BotFatherHandler:
+			cmd.Setup(map[string]interface{}{
+				"commandMap": cmdMap,
+			})
+		case *commands.VisionHandler:
+			cmd.Setup(map[string]interface{}{
+				"serviceAccountPath": c.String("service_account_file"),
+			})
+		case *commands.SettingsHandler:
+			cmd.Setup(map[string]interface{}{
+				"url": settingsURL,
+			})
+		default:
+			cmd.Setup(map[string]interface{}{})
+		}
 	}
-
-	commands.LoadVision(c.String("service_account_file"))
 
 	log.Println("Loaded all commands")
 
@@ -149,20 +185,6 @@ func runApp(c *cli.Context) error {
 	}
 
 	log.Println("Connected to datastore")
-
-	HttpPort = c.String("http_port")
-
-	// Add URL for settings command
-	if c.IsSet("ip") {
-		commands.SettingsURL = c.String("ip") + ":" + c.String("http_port") + "/chat/"
-	} else {
-		IP, err := checkIP()
-		if err != nil {
-			commands.SettingsURL = "localhost:" + c.String("http_port") + "/chat/"
-		} else {
-			commands.SettingsURL = IP + ":" + c.String("http_port") + "/chat/"
-		}
-	}
 
 	// Start bot
 
@@ -182,7 +204,6 @@ func runApp(c *cli.Context) error {
 	go startBot(c.String("token"), webhookConf)
 
 	// Start Website
-
 	go startWebsite(c.Bool("prod"))
 
 	// Load reminders

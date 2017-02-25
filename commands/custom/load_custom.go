@@ -1,6 +1,6 @@
 package custom
 
 func LoadCustom() {
-	addToCustomCommands(QuotesHandler{})
-	addToCustomCommands(QuoteHandler{})
+	addToCustomCommands(&QuotesHandler{})
+	addToCustomCommands(&QuoteHandler{})
 }

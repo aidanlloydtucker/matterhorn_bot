@@ -8,6 +8,7 @@ import (
 )
 
 type HelpHandler struct {
+	commandMap map[string]*CommandInfo
 }
 
 var helpHandlerInfo = CommandInfo{
@@ -24,13 +25,13 @@ var helpHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msgStr string
 	var err error
 	if message.CommandArguments() != "" {
-		msgStr, err = getCommandInfo(message.CommandArguments())
+		msgStr, err = getCommandInfo(h.commandMap, message.CommandArguments())
 	} else {
-		msgStr = listCommands()
+		msgStr = listCommands(h.commandMap)
 	}
 
 	var msg tgbotapi.MessageConfig
@@ -43,9 +44,9 @@ func (h HelpHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messa
 	bot.Send(msg)
 }
 
-func listCommands() string {
+func listCommands(cmdMap map[string]*CommandInfo) string {
 	msgStr := "<b>Commands:</b>\n"
-	for _, cmd := range CommandMap {
+	for _, cmd := range cmdMap {
 		if cmd.Hidden {
 			continue
 		}
@@ -54,8 +55,8 @@ func listCommands() string {
 	return msgStr
 }
 
-func getCommandInfo(command string) (string, error) {
-	cmd, ok := CommandMap[command]
+func getCommandInfo(cmdMap map[string]*CommandInfo, command string) (string, error) {
+	cmd, ok := cmdMap[command]
 	if !ok {
 		return "", errors.New("Unknown command")
 	}
@@ -80,12 +81,24 @@ func getCommandInfo(command string) (string, error) {
 	return msgStr, nil
 }
 
-func (h HelpHandler) Info() *CommandInfo {
+func (h *HelpHandler) Info() *CommandInfo {
 	return &helpHandlerInfo
 }
 
-func (h HelpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *HelpHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
 }
 
-var CommandMap map[string]*CommandInfo
+/*
+Params:
+map[string]*CommandInfo commandMap (default: map[string]*CommandInfo{}) // Map of command infos for help to print out
+*/
+func (h *HelpHandler) Setup(setupFields map[string]interface{}) {
+	h.commandMap = map[string]*CommandInfo{}
+
+	if cmdMapVal, ok := setupFields["commandMap"]; ok {
+		if cmdMap, ok := cmdMapVal.(map[string]*CommandInfo); ok {
+			h.commandMap = cmdMap
+		}
+	}
+}

@@ -6,14 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"bytes"
-
 	"net/url"
 
 	"strconv"
 
 	"fmt"
-	"io"
 	"strings"
 
 	"gopkg.in/telegram-bot-api.v4"
@@ -119,7 +116,7 @@ func (rt RoundTTest) RoundTrip(r *http.Request) (*http.Response, error) {
 	return nil, errors.New("STOP")
 }
 
-func parseFormURLEncoded(body io.ReadCloser) (*tgbotapi.MessageConfig, error) {
+/*func parseFormURLEncoded(body io.ReadCloser) (*tgbotapi.MessageConfig, error) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(body)
 
@@ -129,7 +126,7 @@ func parseFormURLEncoded(body io.ReadCloser) (*tgbotapi.MessageConfig, error) {
 	}
 
 	return valsToMessageConfig(vals), nil
-}
+}*/
 
 func valsToMessageConfig(vals url.Values) *tgbotapi.MessageConfig {
 	msgConf := tgbotapi.MessageConfig{
@@ -273,13 +270,17 @@ func TestBitcoinHandler_HandleCommand(t *testing.T) {
 func TestBotFatherHandler_HandleCommand(t *testing.T) {
 	bot, output := newTestBot()
 
-	CommandMap = map[string]*CommandInfo{
+	ch := new(BotFatherHandler)
+
+	cmdMap := map[string]*CommandInfo{
 		"help":      &helpHandlerInfo,
 		"echo":      &echoHandlerInfo,
 		"botfather": &botFatherHandlerInfo,
 	}
+	ch.Setup(map[string]interface{}{
+		"commandMap": cmdMap,
+	})
 
-	ch := new(BotFatherHandler)
 	ch.HandleCommand(bot, newCommand(ch.Info().Command), []string{})
 
 	out := <-output
@@ -375,13 +376,17 @@ func TestFortuneHandler_HandleCommand(t *testing.T) {
 func TestHelpHandler_HandleCommand(t *testing.T) {
 	bot, output := newTestBot()
 
-	CommandMap = map[string]*CommandInfo{
+	ch := new(HelpHandler)
+
+	cmdMap := map[string]*CommandInfo{
 		"help":      &helpHandlerInfo,
 		"echo":      &echoHandlerInfo,
 		"botfather": &botFatherHandlerInfo,
 	}
+	ch.Setup(map[string]interface{}{
+		"commandMap": cmdMap,
+	})
 
-	ch := new(HelpHandler)
 	ch.HandleCommand(bot, newCommand(ch.Info().Command), []string{})
 
 	out := <-output
@@ -413,11 +418,14 @@ func TestHelpHandler_HandleCommand(t *testing.T) {
 func TestHelpHandler_HandleCommand_DetailedInfo(t *testing.T) {
 	bot, output := newTestBot()
 
-	CommandMap = map[string]*CommandInfo{
+	ch := new(HelpHandler)
+
+	cmdMap := map[string]*CommandInfo{
 		"echo": &echoHandlerInfo,
 	}
-
-	ch := new(HelpHandler)
+	ch.Setup(map[string]interface{}{
+		"commandMap": cmdMap,
+	})
 	ch.HandleCommand(bot, newCommand(ch.Info().Command+" echo"), []string{"echo"})
 
 	out := <-output
@@ -648,9 +656,11 @@ func TestRedditHandler_HandleCommand(t *testing.T) {
 func TestRektHandler_HandleCommand(t *testing.T) {
 	bot, output := newTestBot()
 
-	reks = []string{"$USER was rekt"}
-
 	ch := new(RektHandler)
+	ch.Setup(map[string]interface{}{
+		"path": "",
+		"reks": []string{"$USER was rekt"},
+	})
 	ch.HandleCommand(bot, newCommand(ch.Info().Command), []string{"foo"})
 
 	out := <-output

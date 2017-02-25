@@ -22,7 +22,7 @@ var shameHandlerInfo = CommandInfo{
 
 var shameFileID string
 
-func (h ShameHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *ShameHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var msg tgbotapi.VoiceConfig
 
 	if shameFileID != "" {
@@ -37,10 +37,14 @@ func (h ShameHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Mess
 
 }
 
-func (h ShameHandler) Info() *CommandInfo {
+func (h *ShameHandler) Info() *CommandInfo {
 	return &shameHandlerInfo
 }
 
-func (h ShameHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *ShameHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *ShameHandler) Setup(setupFields map[string]interface{}) {
+
 }

@@ -18,17 +18,25 @@ var {{.CommandName}}HandlerInfo = CommandInfo{
 		"/{{.CommandName}}",
 	},
 	ResType: "message",
+	Hidden: false,
 }
 
-func (h {{.CommandNameCaps}}Handler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *{{.CommandNameCaps}}Handler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "")
 	bot.Send(msg)
 }
 
-func (h {{.CommandNameCaps}}Handler) Info() *CommandInfo {
+func (h *{{.CommandNameCaps}}Handler) Info() *CommandInfo {
 	return &{{.CommandName}}HandlerInfo
 }
 
-func (h {{.CommandNameCaps}}Handler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *{{.CommandNameCaps}}Handler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+/*
+Params:
+*/
+func (h *{{.CommandNameCaps}}Handler) Setup(setupFields map[string]interface{}) {
+
 }

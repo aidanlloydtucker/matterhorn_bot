@@ -35,7 +35,7 @@ var memeHandlerInfo = CommandInfo{
 	ResType: "photo",
 }
 
-func (h MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	var errMsg tgbotapi.MessageConfig
 
 	defer func(bot *tgbotapi.BotAPI) {
@@ -79,12 +79,17 @@ func (h MemeHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Messa
 	}
 }
 
-func (h MemeHandler) Info() *CommandInfo {
+func (h *MemeHandler) Info() *CommandInfo {
 	return &memeHandlerInfo
 }
 
-func (h MemeHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *MemeHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+//TODO: path param
+func (h *MemeHandler) Setup(setupFields map[string]interface{}) {
+
 }
 
 func makeMeme(imgFileBytes []byte, topText string, bottomText string) (error, *bytes.Buffer) {

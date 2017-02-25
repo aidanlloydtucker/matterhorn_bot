@@ -20,15 +20,19 @@ var pingHandlerInfo = CommandInfo{
 	ResType: "message",
 }
 
-func (h PingHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
+func (h *PingHandler) HandleCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message, args []string) {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "PONG!")
 	bot.Send(msg)
 }
 
-func (h PingHandler) Info() *CommandInfo {
+func (h *PingHandler) Info() *CommandInfo {
 	return &pingHandlerInfo
 }
 
-func (h PingHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
+func (h *PingHandler) HandleReply(message *tgbotapi.Message) (bool, string) {
 	return false, ""
+}
+
+func (h *PingHandler) Setup(setupFields map[string]interface{}) {
+
 }
