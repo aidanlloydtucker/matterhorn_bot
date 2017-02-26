@@ -52,8 +52,8 @@ func startBot(token string, webhookConf *WebhookConfig) {
 		} else {
 			runningWebhook = true
 			updates = bot.ListenForWebhook("/" + bot.Token)
-			go http.ListenAndServeTLS(webhookConf.IP+":"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil)
-			log.Println("Running on Webhook")
+			go log.Fatalln(http.ListenAndServeTLS("0.0.0.0:"+webhookConf.Port, webhookConf.CertPath, webhookConf.KeyPath, nil))
+			log.Println("Running on Webhook.")
 		}
 	}
 
