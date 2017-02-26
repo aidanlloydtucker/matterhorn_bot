@@ -42,7 +42,11 @@ func startBot(token string, webhookConf *WebhookConfig) {
 	var webhookErr error
 
 	if webhookConf != nil {
-		_, webhookErr = bot.SetWebhook(tgbotapi.NewWebhookWithCert(webhookConf.IP+":"+webhookConf.Port+"/"+bot.Token, webhookConf.CertPath))
+		var cert interface{} = nil
+		if webhookConf.CertPath != "" {
+			cert = webhookConf.CertPath
+		}
+		_, webhookErr = bot.SetWebhook(tgbotapi.NewWebhookWithCert(webhookConf.IP+":"+webhookConf.Port+"/"+bot.Token, cert))
 		if webhookErr != nil {
 			log.Println("Webhook Error:", webhookErr, "Switching to poll")
 		} else {

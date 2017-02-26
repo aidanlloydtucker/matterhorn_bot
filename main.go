@@ -53,7 +53,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "ip",
-			Usage: "The IP for the settings webpage and webhook port",
+			Usage: "The IP or domain for the settings webpage and webhook. For webhook, you need this to be a domain ",
 		},
 		cli.StringFlag{
 			Name:  "webhook_port",

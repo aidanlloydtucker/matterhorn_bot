@@ -10,6 +10,7 @@ ARG version
 RUN go build -ldflags "-X main.Version=$version -X main.BuildTime=`date +%s`"
 
 EXPOSE 8080 8080
+EXPOSE 8443
 
 ENTRYPOINT ["/go/src/github.com/billybobjoeaglt/matterhorn_bot/matterhorn_bot"]
 CMD ["--help"]
