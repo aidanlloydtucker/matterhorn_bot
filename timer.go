@@ -2,6 +2,7 @@ package main
 
 import (
 	"cloud.google.com/go/datastore"
+	chatpkg "github.com/billybobjoeaglt/matterhorn_bot/chat"
 	"gopkg.in/telegram-bot-api.v4"
 	"log"
 	"time"
@@ -36,7 +37,7 @@ func startTimer(when time.Time, message string, chatID int64) *time.Timer {
 	return timer
 }
 
-func insertTimersByChatID(ats []AlertTime, chatID int64) {
+func insertTimersByChatID(ats []chatpkg.AlertTime, chatID int64) {
 	timers, ok := TimersByChatID[chatID]
 	if ok {
 		for _, timer := range timers {
@@ -59,8 +60,8 @@ func parseTimes(timeStr string) (time.Time, error) {
 }
 
 func initTimers() {
-	chats := []Chat{}
-	keys, err := datastoreClient.GetAll(datastoreContext, datastore.NewQuery(ChatKeyKind).Namespace(ChatKeyNamespace), &chats)
+	chats := []chatpkg.Chat{}
+	keys, err := DatastoreInst.Client.GetAll(DatastoreInst.Ctx, datastore.NewQuery(chatpkg.ChatKeyKind).Namespace(chatpkg.KeyNamespace), &chats)
 	if err != nil {
 		log.Println("Get All Chats Failed:", err)
 		return

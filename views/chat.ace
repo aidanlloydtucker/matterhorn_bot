@@ -18,6 +18,10 @@
         input setting={{$key}} type=checkbox data-toggle=switch
       {{end}}
   {{end}}
+  h4 Quotes Document:
+  input#quotesdoc.form-control type=text value={{.QuotesDoc}}
+  p.text-muted The quotes document is the document id of the quotes for this chat. You can change it to an existing id of a different chat, which will put quotes from both chats into that document and you will be able to pull quotes from that single document into both chats.
+  br
   h4 Keywords:
   table#keyword_table.table.table-bordered
     tr

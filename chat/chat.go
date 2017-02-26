@@ -1,7 +1,8 @@
-package main
+package chat
 
 import (
 	"cloud.google.com/go/datastore"
+	"context"
 	"math/rand"
 	"time"
 )
@@ -13,7 +14,7 @@ func init() {
 }
 
 const ChatKeyKind = "Chat"
-const ChatKeyNamespace = "matterhorn-bot"
+const KeyNamespace = "matterhorn-bot"
 
 type Chat struct {
 	Name     string
@@ -25,6 +26,7 @@ type ChatSettings struct {
 	NSFW       bool        `datastore:",noindex"`
 	AlertTimes []AlertTime `datastore:",noindex"`
 	KeyWords   []KeyWord   `datastore:",noindex"`
+	QuotesDoc  int         `datastore:",noindex"`
 }
 
 type AlertTime struct {
@@ -49,26 +51,38 @@ func MakeKeyWord(key, message string) KeyWord {
 
 func NewKeyFromChatID(chatID int64) *datastore.Key {
 	key := datastore.IDKey(ChatKeyKind, chatID, nil)
-	key.Namespace = ChatKeyNamespace
+	key.Namespace = KeyNamespace
 	return key
 }
 
-func getDatastoreChat(chatID int64) (chat Chat, exists bool, err error) {
-	err = datastoreClient.Get(datastoreContext, NewKeyFromChatID(chatID), &chat)
+type Datastore struct {
+	Client *datastore.Client
+	Ctx    context.Context
+}
+
+func NewDatastore(client *datastore.Client, ctx context.Context) *Datastore {
+	return &Datastore{
+		Client: client,
+		Ctx:    ctx,
+	}
+}
+
+func (ds *Datastore) GetChat(chatID int64) (chat Chat, exists bool, err error) {
+	err = ds.Client.Get(ds.Ctx, NewKeyFromChatID(chatID), &chat)
 
 	exists = err != datastore.ErrNoSuchEntity
 
 	return
 }
 
-func insertDatastoreChat(chat Chat, chatID int64) error {
-	_, err := datastoreClient.Put(datastoreContext, NewKeyFromChatID(chatID), &chat)
+func (ds *Datastore) InsertChat(chat Chat, chatID int64) error {
+	_, err := ds.Client.Put(ds.Ctx, NewKeyFromChatID(chatID), &chat)
 
 	return err
 }
 
-func updateDatastoreChat(makeChangesFunc func(Chat) Chat, chatID int64) (Chat, error) {
-	tx, err := datastoreClient.NewTransaction(datastoreContext)
+func (ds *Datastore) UpdateChat(makeChangesFunc func(Chat) Chat, chatID int64) (Chat, error) {
+	tx, err := ds.Client.NewTransaction(ds.Ctx)
 	if err != nil {
 		return Chat{}, err
 	}

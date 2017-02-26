@@ -9,6 +9,7 @@ import (
 
 	"gopkg.in/telegram-bot-api.v4"
 
+	chatpkg "github.com/billybobjoeaglt/matterhorn_bot/chat"
 	mbCommands "github.com/billybobjoeaglt/matterhorn_bot/commands"
 )
 
@@ -111,12 +112,12 @@ func startBot(token string, webhookConf *WebhookConfig) {
 }
 
 func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	chat, exists, err := getDatastoreChat(update.Message.Chat.ID)
+	chat, exists, err := DatastoreInst.GetChat(update.Message.Chat.ID)
 	if err != nil && exists {
 		log.Println("Error getting chat from datastore:", err)
 		return
 	} else if !exists {
-		newChat := Chat{}
+		newChat := chatpkg.Chat{}
 		if update.Message.Chat.Title == "" {
 			if update.Message.Chat.UserName != "" {
 				newChat.Name = update.Message.Chat.UserName
@@ -128,7 +129,7 @@ func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		}
 		newChat.Type = update.Message.Chat.Type
 
-		err = insertDatastoreChat(newChat, update.Message.Chat.ID)
+		err = DatastoreInst.InsertChat(newChat, update.Message.Chat.ID)
 		if err != nil {
 			log.Println("Error inserting chat:", err)
 		} else {
@@ -145,7 +146,7 @@ func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			}
 		} else if update.Message.NewChatTitle != "" {
 			chat.Name = update.Message.NewChatTitle
-			_, err = updateDatastoreChat(func(oldChat Chat) Chat {
+			_, err = DatastoreInst.UpdateChat(func(oldChat chatpkg.Chat) chatpkg.Chat {
 				newChat := oldChat
 				newChat.Name = update.Message.NewChatTitle
 				return newChat

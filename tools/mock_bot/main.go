@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
-	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
 	"gopkg.in/telegram-bot-api.v4"
 	"log"
 )
@@ -21,12 +20,6 @@ import (
 func main() {
 	// Commands
 	LoadCommands()
-
-	// Load Custom Commands
-	custom.LoadCustom()
-	for _, cmd := range custom.CustomCommandList {
-		CommandHandlers = append(CommandHandlers, cmd)
-	}
 
 	cmdMap := make(map[string]*commands.CommandInfo)
 	for _, cmd := range CommandHandlers {

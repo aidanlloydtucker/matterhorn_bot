@@ -14,8 +14,8 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"context"
+	chatpkg "github.com/billybobjoeaglt/matterhorn_bot/chat"
 	"github.com/billybobjoeaglt/matterhorn_bot/commands"
-	"github.com/billybobjoeaglt/matterhorn_bot/commands/custom"
 	"github.com/codegangsta/cli"
 	"google.golang.org/api/option"
 )
@@ -26,8 +26,7 @@ var (
 	BuildTime string
 )
 
-var datastoreClient *datastore.Client
-var datastoreContext context.Context
+var DatastoreInst *chatpkg.Datastore
 
 var HttpPort string
 
@@ -105,32 +104,41 @@ func main() {
 }
 
 func runApp(c *cli.Context) error {
-	var err error
 	log.Println("Running app")
 
+	/* Settings Command Setup */
 	HttpPort = c.String("http_port")
-
-	// Add URL for settings command
 	var settingsURL string
 	if c.IsSet("ip") {
-		settingsURL = c.String("ip") + ":" + c.String("http_port") + "/chat/"
+		settingsURL = c.String("ip") + ":" + HttpPort + "/chat/"
 	} else {
 		IP, err := checkIP()
 		if err != nil {
-			settingsURL = "localhost:" + c.String("http_port") + "/chat/"
+			settingsURL = "localhost:" + HttpPort + "/chat/"
 		} else {
-			settingsURL = IP + ":" + c.String("http_port") + "/chat/"
+			settingsURL = IP + ":" + HttpPort + "/chat/"
 		}
 	}
 
-	// Commands
-	LoadCommands()
+	/* Datastore Setup */
+	dsCtx := context.Background()
 
-	// Load Custom Commands
-	custom.LoadCustom()
-	for _, cmd := range custom.CustomCommandList {
-		CommandHandlers = append(CommandHandlers, cmd)
+	if !c.IsSet("project_id") {
+		log.Fatalln("Missing Project ID")
 	}
+
+	// Creates a client.
+	dsClient, err := datastore.NewClient(dsCtx, c.String("project_id"), option.WithServiceAccountFile(c.String("service_account_file")))
+	if err != nil {
+		log.Fatalf("Failed to create datastore client: %v", err)
+	}
+
+	DatastoreInst = chatpkg.NewDatastore(dsClient, dsCtx)
+
+	log.Println("Connected to datastore")
+
+	/* Commands */
+	LoadCommands()
 
 	cmdMap := make(map[string]*commands.CommandInfo)
 	for _, cmd := range CommandHandlers {
@@ -164,27 +172,20 @@ func runApp(c *cli.Context) error {
 			cmd.Setup(map[string]interface{}{
 				"url": settingsURL,
 			})
+		case *commands.QuotesHandler:
+			cmd.Setup(map[string]interface{}{
+				"datastore": DatastoreInst,
+			})
+		case *commands.QuoteHandler:
+			cmd.Setup(map[string]interface{}{
+				"datastore": DatastoreInst,
+			})
 		default:
 			cmd.Setup(map[string]interface{}{})
 		}
 	}
 
 	log.Println("Loaded all commands")
-
-	/* GOOGLE CLOUD DATASTORE */
-	datastoreContext = context.Background()
-
-	if !c.IsSet("project_id") {
-		log.Fatalln("Missing Project ID")
-	}
-
-	// Creates a client.
-	datastoreClient, err = datastore.NewClient(datastoreContext, c.String("project_id"), option.WithServiceAccountFile(c.String("service_account_file")))
-	if err != nil {
-		log.Fatalf("Failed to create datastore client: %v", err)
-	}
-
-	log.Println("Connected to datastore")
 
 	// Start bot
 
