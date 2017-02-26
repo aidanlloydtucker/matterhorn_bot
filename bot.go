@@ -24,7 +24,7 @@ type WebhookConfig struct {
 	CertPath string
 }
 
-func startBot(token string, webhookConf *WebhookConfig) {
+func startBot(token string, botDebug bool, webhookConf *WebhookConfig) {
 	log.Println("Starting Bot")
 
 	bot, err := tgbotapi.NewBotAPI(token)
@@ -34,7 +34,7 @@ func startBot(token string, webhookConf *WebhookConfig) {
 
 	mainBot = bot
 
-	bot.Debug = false
+	bot.Debug = botDebug
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 

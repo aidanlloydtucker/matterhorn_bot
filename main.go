@@ -90,6 +90,10 @@ func main() {
 			Name:  "set_version",
 			Usage: "Set the version of matterhorn bot",
 		},
+		cli.BoolFlag{
+			Name: "bot_debug",
+			Usage: "Enables debug mode on the bot",
+		},
 	}
 
 	app.Version = Version
@@ -207,7 +211,7 @@ func runApp(c *cli.Context) error {
 
 	log.Println("Starting bot and website")
 
-	go startBot(c.String("token"), webhookConf)
+	go startBot(c.String("token"), c.Bool("bot_debug"), webhookConf)
 
 	// Start Website
 	go startWebsite(c.Bool("prod"))
