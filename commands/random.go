@@ -21,7 +21,7 @@ var randomHandlerInfo = CommandInfo{
 	Command:     "random",
 	Args:        ` ?(.[^ ]*)? ?(.[^ ]*)?`,
 	Permission:  3,
-	Description: "gets random ",
+	Description: "gets random number",
 	LongDesc:    "",
 	Usage:       "/random (min) (max)",
 	Examples: []string{

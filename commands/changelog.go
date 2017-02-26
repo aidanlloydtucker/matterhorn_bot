@@ -14,7 +14,7 @@ var changelogHandlerInfo = CommandInfo{
 	Command:     "changelog",
 	Args:        "",
 	Permission:  3,
-	Description: "",
+	Description: "gets Matterhorn Bot changelog",
 	LongDesc:    "",
 	Usage:       "/changelog",
 	Examples: []string{
