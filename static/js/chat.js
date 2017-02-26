@@ -8,7 +8,11 @@ $("#save").click(function(){
         alert_times: {},
         new_key_words: [],
         new_alert_times: [],
+        quotes_doc: parseInt($("#quotesdoc").val()),
     };
+    if (!settings.quotes_doc) {
+        settings.quotes_doc = 0
+    }
     $("input[setting]").each(function() {
         settings[$(this).attr("setting")] = this.checked
     });
