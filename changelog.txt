@@ -1,0 +1,23 @@
+*[4.2.0] 02-25-17*
+- Each chat now has a quotes 'document' that stores quotes said on that chat
+    - To add a quote, you and either do `/quote [quote]` or reply to a message (it can be a forwarded message) with `/quote`
+    - To get a random quote, do `/quotes`
+    - To get the link to the list of quotes, do `/quoteslink`
+    - You can merge quotes documents. Say chatA and chatB want to have the same document. chatA would change their document ID (the document ID can be changed in settings) to the document ID of chatB.
+- Added `/changelog` command, which posts the most recent changes to Matterhorn Bot
+
+*[4.1.0] 02-25-17*
+- Improvements and bug fixes
+
+*[4.0.0] 02-24-17*
+- Improvements and bug fixes
+- Moved Matterhorn Bot a different cloud, making it faster
+
+*[3.2.0] 02-23-17*
+- Added the `/msgdump` command, which dumps a bunch of technobable of what exactly is happening when you say something
+- Removed the `/hot` command due to the service being not available anymore
+
+*[3.1.0] 02-19-17*
+- Added the `/vision` command
+    - Reply to a photo with the command or include the command in a photo's caption to run the command
+    - It analysis the photo for labels using an AI
