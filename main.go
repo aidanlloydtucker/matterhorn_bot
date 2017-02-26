@@ -108,15 +108,15 @@ func runApp(c *cli.Context) error {
 
 	/* Settings Command Setup */
 	HttpPort = c.String("http_port")
-	var settingsURL string
+	var baseURL string
 	if c.IsSet("ip") {
-		settingsURL = c.String("ip") + ":" + HttpPort + "/chat/"
+		baseURL = c.String("ip") + ":" + HttpPort
 	} else {
 		IP, err := checkIP()
 		if err != nil {
-			settingsURL = "localhost:" + HttpPort + "/chat/"
+			baseURL = "localhost:" + HttpPort
 		} else {
-			settingsURL = IP + ":" + HttpPort + "/chat/"
+			baseURL = IP + ":" + HttpPort
 		}
 	}
 
@@ -170,7 +170,7 @@ func runApp(c *cli.Context) error {
 			})
 		case *commands.SettingsHandler:
 			cmd.Setup(map[string]interface{}{
-				"url": settingsURL,
+				"url": baseURL + "/chat/",
 			})
 		case *commands.QuotesHandler:
 			cmd.Setup(map[string]interface{}{
@@ -179,6 +179,11 @@ func runApp(c *cli.Context) error {
 		case *commands.QuoteHandler:
 			cmd.Setup(map[string]interface{}{
 				"datastore": DatastoreInst,
+			})
+		case *commands.QuoteslinkHandler:
+			cmd.Setup(map[string]interface{}{
+				"datastore": DatastoreInst,
+				"url":       baseURL + "/quotes/",
 			})
 		default:
 			cmd.Setup(map[string]interface{}{})

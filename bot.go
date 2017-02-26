@@ -11,6 +11,7 @@ import (
 
 	chatpkg "github.com/billybobjoeaglt/matterhorn_bot/chat"
 	mbCommands "github.com/billybobjoeaglt/matterhorn_bot/commands"
+	"math/rand"
 )
 
 var mainBot *tgbotapi.BotAPI
@@ -117,7 +118,11 @@ func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		log.Println("Error getting chat from datastore:", err)
 		return
 	} else if !exists {
-		newChat := chatpkg.Chat{}
+		newChat := chatpkg.Chat{
+			Settings: chatpkg.ChatSettings{
+				QuotesDoc: int(rand.Int31()),
+			},
+		}
 		if update.Message.Chat.Title == "" {
 			if update.Message.Chat.UserName != "" {
 				newChat.Name = update.Message.Chat.UserName
@@ -137,6 +142,17 @@ func onMessageRoutine(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		}
 
 	} else {
+		if chat.Settings.QuotesDoc == 0 {
+			_, err = DatastoreInst.UpdateChat(func(oldChat chatpkg.Chat) chatpkg.Chat {
+				newChat := oldChat
+				newChat.Settings.QuotesDoc = int(rand.Int31())
+				return newChat
+			}, update.Message.Chat.ID)
+			if err != nil {
+				log.Println("Error updating quotesdoc chat:", err)
+			}
+		}
+
 		if update.Message.Text != "" {
 			for _, word := range chat.Settings.KeyWords {
 				if strings.Contains(strings.ToLower(update.Message.Text), strings.ToLower(word.Key)) {
